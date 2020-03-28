@@ -569,15 +569,6 @@ function getDataPoints() {
 }
 
 function getTestDataPoints() {
-	// var data = []
-	// var i
-	// for (i = 20; i > 0; i--) {
-	//     data.push({
-	//         x: moment().add(-i, 'd'),
-	//         y: 97.5 + Math.random() * 2 - 1
-	//     })
-	// }
-	// return data
 	return [
 		{ x: moment("2020-03-22T22:30:00"), y: 97.4 },
 		{ x: moment("2020-03-22T19:00:00"), y: 97.4 },
@@ -649,12 +640,18 @@ window.onload = function () {
 		},
 		options: {
 			responsive: true,
+			tooltips: {
+				enabled: false
+			},
 			legend: {
 				display: false
 			},
 			scales: {
 				xAxes: [{
-					type: 'time'
+					type: 'time',
+					time: {
+						unit: 'day'
+					}
 				}],
 				yAxes: [{
 					ticks: {
