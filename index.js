@@ -621,14 +621,15 @@ window.onload = function () {
 		type: 'line',
 		data: {
 			datasets: [{
-				borderColor: '#55DD55',
-				fill: false,
 				showLine: false,
+				pointRadius: 5,
+				pointBackgroundColor: '#55DD55',
 				data: getTestDataPoints()
 			}, {
 				borderColor: '#FF0000',
 				fill: false,
 				showLine: true,
+				pointRadius: 0,
 				data: [{
 					x: getEarliestDate(getTestDataPoints()),
 					y: calculateBar(getTestDataPoints())
@@ -651,11 +652,23 @@ window.onload = function () {
 					type: 'time',
 					time: {
 						unit: 'day'
+					},
+					gridLines: {
+						color: "#555555"
+					},
+					ticks: {
+						fontColor: "#999999",
+						fontSize: 18
 					}
 				}],
 				yAxes: [{
+					gridLines: {
+						color: "#555555"
+					},
 					ticks: {
-						stepSize: 0.5
+						stepSize: 0.5,
+						fontColor: "#999999",
+						fontSize: 18
 					}
 				}]
 			}
