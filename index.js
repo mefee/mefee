@@ -24,7 +24,7 @@ function getDataPoints() {
     var i
     for (i = 20; i > 0; i--) {
         data.push({
-            x: new Date().getTime() - i * 1000 * 60 * 60 * 24,
+            x: moment().add(-i, 'd'),
             y: 97.5 + Math.random() * 2 - 1
         })
     }
@@ -42,15 +42,32 @@ window.onload = function () {
         $('#fieldset').show()
     })
 
-    console.log(new this.Date().toDateInputValue())
     $('#datetime').val(new Date().toDateInputValue())
 
     var chartContext = document.getElementById('chart').getContext('2d');
     var chart = new Chart(chartContext, {
         type: 'line',
-        data: getDataPoints(),
+        data: {
+            datasets: [{
+                borderColor: '#55DD55',
+                fill: false,
+                data: getDataPoints()
+            }]
+        },
         options: {
-
+            responsive: true,
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time',
+                    display: true
+                }],
+                yAxes: [{
+                    display: true
+                }]
+            }
         }
     })
 }
