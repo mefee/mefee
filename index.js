@@ -12,6 +12,21 @@ function celsiusToFarenheit(celsius) {
     return Math.round(100 * ((celsius * 9/5) + 32)) / 100
 }
 
+function readCookie(name) {
+    let key = name + "=";
+    let cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1, cookie.length);
+        }
+        if (cookie.indexOf(key) === 0) {
+            return cookie.substring(key.length, cookie.length);
+        }
+    }
+    return null;
+}
+
 var temperatureUnit = "f"
 var chart
 
@@ -31,7 +46,15 @@ DataPoint
 
 function getDataPoints() {
     var data = []
-    // TODO get from source, currently randomly generated
+    var cookie = readCookie('data')
+    if(cookie) {
+        data = JSON.parse(cookie)
+    }
+    return data
+}
+
+function getTestDataPoints() {
+    var data = []
     var i
     for (i = 20; i > 0; i--) {
         data.push({
@@ -43,7 +66,44 @@ function getDataPoints() {
 }
 
 window.onload = function () {
+    var chartContext = document.getElementById('chart').getContext('2d');
+    chart = new Chart(chartContext, {
+        type: 'line',
+        data: {
+            datasets: [{
+                borderColor: '#55DD55',
+                fill: false,
+                showLine: false,
+                data: getDataPoints()
+            }]
+        },
+        options: {
+            responsive: true,
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                    type: 'time'
+                }],
+                yAxes: [{
+                    ticks: {
+                        stepSize: 0.5
+                    }
+                }]
+            }
+        }
+    })
+
     $('#fieldset-btn').on('click', function () {
+        chart.data.datasets[0].data.push({
+            x: moment($('#datetime').val()),
+            y: Math.round(100 * $('#temperature').val()) / 100
+        })
+        chart.update()
+        var expiration = moment().add(6, 'm')
+        console.log(escape("data=" + JSON.stringify(chart.data.datasets[0].data) + ";expires=" + expiration + ";"))
+        console.log(document.cookie)
         $('#fieldset').hide()
         $('#results').show()
     })
@@ -82,33 +142,4 @@ window.onload = function () {
         }
         chart.update()
     });
-
-    var chartContext = document.getElementById('chart').getContext('2d');
-    chart = new Chart(chartContext, {
-        type: 'line',
-        data: {
-            datasets: [{
-                borderColor: '#55DD55',
-                fill: false,
-                showLine: false,
-                data: getDataPoints()
-            }]
-        },
-        options: {
-            responsive: true,
-            legend: {
-                display: false
-            },
-            scales: {
-                xAxes: [{
-                    type: 'time'
-                }],
-                yAxes: [{
-                    ticks: {
-                        stepSize: 0.5
-                    }
-                }]
-            }
-        }
-    })
 }
