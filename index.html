@@ -58,7 +58,7 @@
     </style>
 
     <h1>mefee</h1>
-    
+
     <p>
         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque dictum
         hendrerit velit, quis ullamcorper sem congue ac. Quisque id magna rhoncus,
@@ -72,11 +72,11 @@
         <strong>This is strong,</strong> this is normal,
         <b>this is just bold,</b> <em>and this is emphasized!</em> And heck,
         <a href="/">here</a>'s a link.
-      </p>
+    </p>
 
-      <br/>
-      
-      <fieldset>
+    <br />
+
+    <fieldset id="fieldset">
         <legend>Data Points</legend>
 
         <label for="value1">Value 1</label>
@@ -86,12 +86,19 @@
         <input type="number" name="value2" id="value2" placeholder="12345">
 
         <p>
-          <input type="checkbox" name="value3" id="value3" checked="">
-          <label for="value3">Value 3</label>
+            <input type="checkbox" name="value3" id="value3" checked="">
+            <label for="value3">Value 3</label>
         </p>
 
-        <input type="submit">
-      </fieldset>
+        <input id="fieldset-btn" type="submit" value="See my results">
+    </fieldset>
+
+    <fieldset id="results" style="display: none;">
+        <legend>Results</legend>
+
+        <h3>You have cancer</h3>
+        <input id="results-btn" type="submit" value="Try again">
+    </fieldset>
 
 </body>
 
