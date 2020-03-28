@@ -681,7 +681,7 @@ window.onload = function () {
 			y: Math.round(100 * $('#temperature').val()) / 100
 		})
 		dataChanged()
-		var expiration = moment().add(6, 'm')
+		var expiration = moment().add(6, 'm').valueOf()
 		document.cookie = "data=" + escape(JSON.stringify(chart.data.datasets[0].data)) + ";expires=" + expiration + ";"
 		$('#fieldset').hide()
 		$('#results').show()
