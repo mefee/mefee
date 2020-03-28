@@ -59,38 +59,26 @@
 
     <h1>mefee</h1>
 
-    <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque dictum
-        hendrerit velit, quis ullamcorper sem congue ac. Quisque id magna rhoncus,
-        sodales massa vel, vestibulum elit. Duis ornare accumsan egestas. Proin
-        maximus lacus interdum leo molestie convallis. Orci varius natoque
-        penatibus et magnis dis parturient montes, nascetur ridiculus mus. Ut
-        iaculis risus eu felis feugiat, eu mollis neque elementum. Donec interdum,
-        nisl id dignissim iaculis, felis dui aliquet dui, non fermentum velit
-        lectus ac quam. Class aptent taciti sociosqu ad litora torquent per
-        conubia nostra, per inceptos himenaeos.
-        <strong>This is strong,</strong> this is normal,
-        <b>this is just bold,</b> <em>and this is emphasized!</em> And heck,
-        <a href="/">here</a>'s a link.
-    </p>
-
     <br />
 
     <fieldset id="fieldset">
-        <legend>Data Points</legend>
+        <label for="datetime">Date/Time</label>
+        <input type="datetime-local" name="datetime" id="datetime">
 
-        <label for="value1">Value 1</label>
-        <input type="text" name="value1" id="value1" placeholder="Lorem ipsum">
+        <label for="temperature">Temperature</label>
+        <input type="number" name="temperature" id="temperature" placeholder="97.5">
 
-        <label for="password">Value 2</label>
-        <input type="number" name="value2" id="value2" placeholder="12345">
+        <div>
+            <input type="radio" name="farenheit" id="farenheit">
+            <label for="farenheit">Farenheit</label>
+        </div>
+        <div>
+            <input type="radio" name="celsius" id="celsius" checked>
+            <label for="celsius">Celsius</label>
+        </div>
 
-        <p>
-            <input type="checkbox" name="value3" id="value3" checked="">
-            <label for="value3">Value 3</label>
-        </p>
-
-        <input id="fieldset-btn" type="submit" value="See my results">
+        <br/>
+        <input id="fieldset-btn" type="submit">
     </fieldset>
 
     <fieldset id="results" style="display: none;">
