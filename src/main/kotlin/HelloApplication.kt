@@ -1,12 +1,18 @@
 package org.mefee
 
 import io.ktor.application.Application
+import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.DefaultHeaders
 import io.ktor.http.content.default
 import io.ktor.http.content.files
 import io.ktor.http.content.static
+import io.ktor.request.receiveText
+import io.ktor.response.respond
+import io.ktor.routing.get
+import io.ktor.routing.post
+import io.ktor.routing.route
 import io.ktor.routing.routing
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -22,6 +28,40 @@ fun Application.main() {
     install(CallLogging)
 
     routing {
+        route("/api/v1/data") {
+            get {
+                val userId = call.request.headers["Authentication"]
+                if (!userId.isNullOrBlank()) {
+                    lateinit var result: String
+                    transaction {
+                        result = Data.select { Data.id eq userId }.single()[Data.data]
+                    }
+                    call.respond(result)
+                } else {
+                    call.respond(403)
+                }
+            }
+            post {
+                val userId = call.request.headers["Authentication"]
+                if (!userId.isNullOrBlank()) {
+                    val userData = call.receiveText()
+                    transaction {
+                        if (Data.select { Data.id eq userId }.singleOrNull() == null) {
+                            Data.insert {
+                                it[id] = userId
+                                it[data] = userData
+                            }
+                        } else {
+                            Data.update({ Data.id eq userId }) {
+                                it[data] = userData
+                            }
+                        }
+                    }
+                } else {
+                    call.respond(403)
+                }
+            }
+        }
         static {
             files("public")
             default("public/index.html")
@@ -32,7 +72,6 @@ fun Application.main() {
 
     transaction {
         addLogger(StdOutSqlLogger)
-
         SchemaUtils.createMissingTablesAndColumns(Data)
     }
 }
