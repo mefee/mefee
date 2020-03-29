@@ -687,7 +687,7 @@ function loadData() {
 			var dataToUse = []
 			for(e of data.data) {
 				dataToUse.push({
-					x: moment(e.datetime),
+					x: moment.unix(e.datetime.seconds),
 					y: temperatureUnit == 'F' ? e.temperature : farenheitToCelsius(e.temperature)
 				})
 			}
