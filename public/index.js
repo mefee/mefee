@@ -428,21 +428,6 @@ function celsiusToFarenheit(celsius) {
 	return Math.round(100 * ((celsius * 9 / 5) + 32)) / 100
 }
 
-function readCookie(name) {
-	let key = name + "=";
-	let cookies = document.cookie.split(';');
-	for (let i = 0; i < cookies.length; i++) {
-		let cookie = unescape(cookies[i]);
-		while (cookie.charAt(0) === ' ') {
-			cookie = cookie.substring(1, cookie.length);
-		}
-		if (cookie.indexOf(key) === 0) {
-			return cookie.substring(key.length, cookie.length);
-		}
-	}
-	return null;
-}
-
 // Arithmetic mean
 function getMean(data) {
 	return data.reduce(function (a, b) {
@@ -642,13 +627,7 @@ function main() {
 			})
 			dataChanged()
 			saveData(chart.data.datasets[0].data)
-			$('#fieldset').hide()
-			$('#results').show()
-		})
-
-		$('#results-btn').on('click', function () {
-			$('#results').hide()
-			$('#fieldset').show()
+			showResultsTab()
 		})
 
 		$('#datetime').val(new Date().toDateInputValue())
