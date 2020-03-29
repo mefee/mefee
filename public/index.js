@@ -458,22 +458,8 @@ function getSD(data) {
 	}, 0) / (data.length - 1))
 }
 
-var temperatureUnit = "f"
+var temperatureUnit = "F"
 var chart
-
-/*
-UserContext
-{
-    unit: Farenheit|Celsius,
-    dataPoints: [] <DataPoint>
-}
-
-DataPoint
-{
-    x: DateTime,
-    y: floating point // Farenheit
-}
-*/
 
 function getDataPoints() {
 	var data = []
@@ -502,14 +488,7 @@ function getTestDataPoints() {
 
 function calculateBar(data) {
 	var data = data.map(function (d) { return d.y })
-	var standardDeviation = getSD(data)
-
-	console.log("[Maths] standardDeviation = " + standardDeviation)
-	console.log("[Maths] chisqrdistr(data.length - 1, 0.95) = " + chisqrdistr(data.length - 1, 0.95))
-	console.log("[Maths] Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)) = " + Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)))
-	console.log("[Maths] 4 * standardDeviation * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)) = " + 4 * standardDeviation * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)))
-
-	var result = 4 * standardDeviation * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
+	var result = 4 * getSD(data) * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
 	return result + getMean(data)
 }
 
@@ -535,10 +514,16 @@ function dataChanged() {
 		y: bar
 	}]
 
-	console.log(chart.data.datasets[0].data.map(function (it) { return { x: it.x.toString(), y: it.y } }))
-	console.log(chart.data.datasets[1].data)
-
 	chart.update()
+
+	$('#data-table').html(chart.data.datasets[0].data.map(function(it, index) {
+		return "<tr><td>" + moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" + (Math.round(it.y*100)/100) + " " + temperatureUnit + "</td><td><a style='cursor: pointer;' onclick='deleteData("+index+")'>Delete</a></td></tr>"
+	}).join("\n"))
+}
+
+function deleteData(index) {
+	chart.data.datasets[0].data.splice(index, 1)
+	dataChanged()
 }
 
 function login() {
@@ -694,17 +679,19 @@ function main() {
 		$('#datetime').val(new Date().toDateInputValue())
 
 		$('input[type=radio][name=temperatureUnit]').change(function () {
-			if (temperatureUnit == 'c' && this.value == 'f') {
+			if (temperatureUnit == 'C' && this.value == 'f') {
 				chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
-				temperatureUnit = 'f'
+				temperatureUnit = 'F'
 				$("#temperature-unit").html('F')
 			}
-			else if (temperatureUnit == 'f' && this.value == 'c') {
+			else if (temperatureUnit == 'F' && this.value == 'c') {
 				chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
-				temperatureUnit = 'c'
+				temperatureUnit = 'C'
 				$("#temperature-unit").html('C')
 			}
 			dataChanged()
 		});
+
+		dataChanged()
 	}
 }

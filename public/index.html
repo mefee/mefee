@@ -63,7 +63,7 @@
 
         <button id="tab_button_form" onclick="showFormTab()" class="tab selected">Input</button>
         <button id="tab_button_results" onclick="showResultsTab()" class="tab">Your Results</button>
-        
+
         <hr class="tab-bar" />
 
         <div id="tab_form" align="center">
@@ -73,9 +73,10 @@
             <input type="datetime-local" name="datetime" id="datetime">
 
             <br />
-            
+
             <label for="temperature" style="display: block;">Temperature</label>
-            <span><input style="display: inherit;" type="number" name="temperature" id="temperature" placeholder="98.6" value="98.6">
+            <span><input style="display: inherit;" type="number" name="temperature" id="temperature" placeholder="98.6"
+                    value="98.6">
                 <span id="temperature-unit">F</span>
             </span>
 
@@ -84,9 +85,20 @@
             <br />
             <input id="fieldset-btn" type="submit">
         </div>
-        
+
         <div id="tab_results" style="display: none;">
             <canvas id="chart" width="600" height="300"></canvas>
+
+            <br />
+            <h3>What you've told us</h3>
+            <table>
+                <thead>
+                    <td>Date/Time</td>
+                    <td>Temperature</td>
+                    <td></td>
+                </thead>
+                <tbody id="data-table"></tbody>
+            </table>
         </div>
     </div>
 </body>
