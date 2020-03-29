@@ -626,6 +626,44 @@ function dataChanged() {
 }
 
 window.onload = function () {
+var firebaseConfig = {
+    apiKey: "AIzaSyDLowILuyzRrK9OLY9Ie_rgjI8dIVsL6hM",
+    authDomain: "mefee-59275.firebaseapp.com",
+    databaseURL: "https://mefee-59275.firebaseio.com",
+    projectId: "mefee-59275",
+    storageBucket: "mefee-59275.appspot.com",
+    messagingSenderId: "582992738780",
+    appId: "1:582992738780:web:93ed924ec5e8145378f719",
+    measurementId: "G-R3TWMZ9F97"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+  firebase.firestore();
+
+  var provider = new firebase.auth.GoogleAuthProvider();
+
+  firebase.auth().getRedirectResult().then(function(result) {
+    if (result.credential) {
+      var token = result.credential.accessToken;
+    }
+    var user = result.user;
+    if(!user) {
+      firebase.auth().signInWithRedirect(provider);
+    } else {
+        main()
+    }
+  }).catch(function(error) {
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    var email = error.email;
+    var credential = error.credential;
+    console.error(error)
+  });
+
+  }
+
+  function main() {
 	var chartContext = document.getElementById('chart').getContext('2d');
 	chart = new Chart(chartContext, {
 		type: 'line',		
