@@ -587,6 +587,12 @@ function getTestDataPoints() {
 function calculateBar(data) {
 	var data = data.map(function (d) { return d.y })
 	var standardDeviation = getSD(data)
+
+	console.log("standardDeviation = " + standardDeviation)
+	console.log("chisqrdistr(data.length - 1, 0.95) = " + chisqrdistr(data.length - 1, 0.95))
+	console.log("Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)) = " + Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)))
+	console.log("4 * standardDeviation * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)) = " + 4 * standardDeviation * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95)))
+
 	var result = 4 * standardDeviation * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
 	return result + getMean(data)
 }
@@ -612,13 +618,17 @@ function dataChanged() {
 		x: getLatestDate(chart.data.datasets[0].data),
 		y: bar
 	}]
+
+	console.log(chart.data.datasets[0].data.map(function(it) { return {x: it.x.toString(), y: it.y}}))
+	console.log(chart.data.datasets[1].data)
+
 	chart.update()
 }
 
 window.onload = function () {
 	var chartContext = document.getElementById('chart').getContext('2d');
 	chart = new Chart(chartContext, {
-		type: 'line',
+		type: 'line',		
 		data: {
 			datasets: [{
 				showLine: false,
