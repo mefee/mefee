@@ -463,27 +463,7 @@ var chart
 
 function getDataPoints() {
 	var data = []
-	var cookie = readCookie('data')
-	if (cookie) {
-		data = JSON.parse(cookie)
-	}
 	return data
-}
-
-function getTestDataPoints() {
-	return [
-		{ x: moment("2020-03-22T22:30:00"), y: 97.4 },
-		{ x: moment("2020-03-22T19:00:00"), y: 97.4 },
-		{ x: moment("2020-03-23T11:47:00"), y: 97.4 },
-		{ x: moment("2020-03-23T21:25:00"), y: 97.2 },
-		{ x: moment("2020-03-24T13:53:00"), y: 97.5 },
-		{ x: moment("2020-03-25T09:00:00"), y: 97.3 },
-		{ x: moment("2020-03-25T10:30:00"), y: 97.4 },
-		{ x: moment("2020-03-26T23:18:00"), y: 97.2 },
-		{ x: moment("2020-03-27T22:07:00"), y: 97.5 },
-		{ x: moment("2020-03-27T23:39:00"), y: 97.3 },
-		{ x: moment("2020-03-28T09:50:00"), y: 97.3 },
-	]
 }
 
 function calculateBar(data) {
@@ -505,19 +485,24 @@ function getLatestDate(data) {
 }
 
 function dataChanged() {
-	var bar = calculateBar(chart.data.datasets[0].data)
-	chart.data.datasets[1].data = [{
-		x: getEarliestDate(chart.data.datasets[0].data),
-		y: bar
-	}, {
-		x: getLatestDate(chart.data.datasets[0].data),
-		y: bar
-	}]
+	if (chart.data.datasets[0].data.length > 1) {
+		var bar = calculateBar(chart.data.datasets[0].data)
+		chart.data.datasets[1].data = [{
+			x: getEarliestDate(chart.data.datasets[0].data),
+			y: bar
+		}, {
+			x: getLatestDate(chart.data.datasets[0].data),
+			y: bar
+		}]
 
-	chart.update()
+		chart.update()
+		$('#chart').show()
+	} else {
+		$('#chart').hide()
+	}
 
-	$('#data-table').html(chart.data.datasets[0].data.map(function(it, index) {
-		return "<tr><td>" + moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" + (Math.round(it.y*100)/100) + " " + temperatureUnit + "</td><td><a style='cursor: pointer;' onclick='deleteData("+index+")'>Delete</a></td></tr>"
+	$('#data-table').html(chart.data.datasets[0].data.map(function (it, index) {
+		return "<tr><td>" + moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" + (Math.round(it.y * 100) / 100) + " " + temperatureUnit + "</td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>"
 	}).join("\n"))
 }
 
@@ -608,19 +593,13 @@ function main() {
 					showLine: false,
 					pointRadius: 5,
 					pointBackgroundColor: '#55DD55',
-					data: getTestDataPoints()
+					data: getDataPoints()
 				}, {
 					borderColor: '#FF0000',
 					fill: false,
 					showLine: true,
 					pointRadius: 0,
-					data: [{
-						x: getEarliestDate(getTestDataPoints()),
-						y: calculateBar(getTestDataPoints())
-					}, {
-						x: getLatestDate(getTestDataPoints()),
-						y: calculateBar(getTestDataPoints())
-					}]
+					data: []
 				}]
 			},
 			options: {
