@@ -655,7 +655,7 @@ function main() {
 		$('#fieldset').show()
 	})
 
-	('#datetime').val(new Date().toDateInputValue())
+	$('#datetime').val(new Date().toDateInputValue())
 
 	$('input[type=radio][name=inputTemperatureUnit]').change(function () {
 		if (temperatureUnit == 'c' && this.value == 'f') {
