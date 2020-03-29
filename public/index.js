@@ -541,6 +541,19 @@ function dataChanged() {
 	chart.update()
 }
 
+function login() {
+	var provider = new firebase.auth.GoogleAuthProvider();
+	firebase.auth().signInWithRedirect(provider);
+}
+
+function logout() {
+	firebase.auth().signOut().then(function () {
+		location.reload()
+	}).catch(function (error) {
+		console.error(error)
+	});
+}
+
 window.onload = function () {
 	var firebaseConfig = {
 		apiKey: "AIzaSyDLowILuyzRrK9OLY9Ie_rgjI8dIVsL6hM",
@@ -557,18 +570,12 @@ window.onload = function () {
 	firebase.analytics();
 	firebase.firestore();
 
-	var provider = new firebase.auth.GoogleAuthProvider();
-
 	firebase.auth().getRedirectResult().then(function (result) {
 		if (result.credential) {
 			var token = result.credential.accessToken;
 		}
 		var user = result.user;
-		if (!user) {
-			firebase.auth().signInWithRedirect(provider);
-		} else {
-			main()
-		}
+		main()
 	}).catch(function (error) {
 		var errorCode = error.code;
 		var errorMessage = error.message;
@@ -579,109 +586,125 @@ window.onload = function () {
 }
 
 function main() {
-	var chartContext = document.getElementById('chart').getContext('2d');
-	chart = new Chart(chartContext, {
-		type: 'line',
-		data: {
-			datasets: [{
-				showLine: false,
-				pointRadius: 5,
-				pointBackgroundColor: '#55DD55',
-				data: getTestDataPoints()
-			}, {
-				borderColor: '#FF0000',
-				fill: false,
-				showLine: true,
-				pointRadius: 0,
-				data: [{
-					x: getEarliestDate(getTestDataPoints()),
-					y: calculateBar(getTestDataPoints())
+	var user = firebase.auth().currentUser
+	console.log(user)
+
+	if (!user) {
+		$('#loading').hide()
+		$('#content_page').hide()
+		$('#login_page').show()
+	} else {
+		$('#loading').hide()
+		$('#login_page').hide()
+		$('#content_page').show()
+
+		$('#username').html(user.email)
+		$('#user_info_bar').show()
+
+		var chartContext = document.getElementById('chart').getContext('2d');
+		chart = new Chart(chartContext, {
+			type: 'line',
+			data: {
+				datasets: [{
+					showLine: false,
+					pointRadius: 5,
+					pointBackgroundColor: '#55DD55',
+					data: getTestDataPoints()
 				}, {
-					x: getLatestDate(getTestDataPoints()),
-					y: calculateBar(getTestDataPoints())
+					borderColor: '#FF0000',
+					fill: false,
+					showLine: true,
+					pointRadius: 0,
+					data: [{
+						x: getEarliestDate(getTestDataPoints()),
+						y: calculateBar(getTestDataPoints())
+					}, {
+						x: getLatestDate(getTestDataPoints()),
+						y: calculateBar(getTestDataPoints())
+					}]
 				}]
-			}]
-		},
-		options: {
-			responsive: true,
-			tooltips: {
-				enabled: false
 			},
-			legend: {
-				display: false
-			},
-			scales: {
-				xAxes: [{
-					type: 'time',
-					time: {
-						unit: 'day'
-					},
-					gridLines: {
-						color: "#555555"
-					},
-					ticks: {
-						fontColor: "#999999",
-						fontSize: 18
-					}
-				}],
-				yAxes: [{
-					gridLines: {
-						color: "#555555"
-					},
-					ticks: {
-						stepSize: 0.5,
-						fontColor: "#999999",
-						fontSize: 18
-					}
-				}]
+			options: {
+				responsive: true,
+				tooltips: {
+					enabled: false
+				},
+				legend: {
+					display: false
+				},
+				scales: {
+					xAxes: [{
+						type: 'time',
+						time: {
+							unit: 'day'
+						},
+						gridLines: {
+							color: "#555555"
+						},
+						ticks: {
+							fontColor: "#999999",
+							fontSize: 18
+						}
+					}],
+					yAxes: [{
+						gridLines: {
+							color: "#555555"
+						},
+						ticks: {
+							stepSize: 0.5,
+							fontColor: "#999999",
+							fontSize: 18
+						}
+					}]
+				}
 			}
-		}
-	})
-
-	$('#fieldset-btn').on('click', function () {
-		chart.data.datasets[0].data.push({
-			x: moment($('#datetime').val()),
-			y: Math.round(100 * $('#temperature').val()) / 100
 		})
-		dataChanged()
-		var expiration = moment().add(6, 'm').valueOf()
-		document.cookie = "data=" + escape(JSON.stringify(chart.data.datasets[0].data)) + ";expires=" + expiration + ";"
-		$('#fieldset').hide()
-		$('#results').show()
-	})
 
-	$('#results-btn').on('click', function () {
-		$('#results').hide()
-		$('#fieldset').show()
-	})
+		$('#fieldset-btn').on('click', function () {
+			chart.data.datasets[0].data.push({
+				x: moment($('#datetime').val()),
+				y: Math.round(100 * $('#temperature').val()) / 100
+			})
+			dataChanged()
+			var expiration = moment().add(6, 'm').valueOf()
+			document.cookie = "data=" + escape(JSON.stringify(chart.data.datasets[0].data)) + ";expires=" + expiration + ";"
+			$('#fieldset').hide()
+			$('#results').show()
+		})
 
-	$('#datetime').val(new Date().toDateInputValue())
+		$('#results-btn').on('click', function () {
+			$('#results').hide()
+			$('#fieldset').show()
+		})
 
-	$('input[type=radio][name=inputTemperatureUnit]').change(function () {
-		if (temperatureUnit == 'c' && this.value == 'f') {
-			chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
-			temperatureUnit = 'f'
-			$('#displayFarenheit').prop('checked', true)
-		}
-		else if (temperatureUnit == 'f' && this.value == 'c') {
-			chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
-			temperatureUnit = 'c'
-			$('#displayCelsius').prop('checked', true)
-		}
-		dataChanged()
-	});
+		$('#datetime').val(new Date().toDateInputValue())
 
-	$('input[type=radio][name=displayTemperatureUnit]').change(function () {
-		if (temperatureUnit == 'c' && this.value == 'f') {
-			chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
-			temperatureUnit = 'f'
-			$('#inputFarenheit').prop('checked', true)
-		}
-		else if (temperatureUnit == 'f' && this.value == 'c') {
-			chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
-			temperatureUnit = 'c'
-			$('#inputCelsius').prop('checked', true)
-		}
-		dataChanged()
-	});
+		$('input[type=radio][name=inputTemperatureUnit]').change(function () {
+			if (temperatureUnit == 'c' && this.value == 'f') {
+				chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
+				temperatureUnit = 'f'
+				$('#displayFarenheit').prop('checked', true)
+			}
+			else if (temperatureUnit == 'f' && this.value == 'c') {
+				chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
+				temperatureUnit = 'c'
+				$('#displayCelsius').prop('checked', true)
+			}
+			dataChanged()
+		});
+
+		$('input[type=radio][name=displayTemperatureUnit]').change(function () {
+			if (temperatureUnit == 'c' && this.value == 'f') {
+				chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
+				temperatureUnit = 'f'
+				$('#inputFarenheit').prop('checked', true)
+			}
+			else if (temperatureUnit == 'f' && this.value == 'c') {
+				chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
+				temperatureUnit = 'c'
+				$('#inputCelsius').prop('checked', true)
+			}
+			dataChanged()
+		});
+	}
 }

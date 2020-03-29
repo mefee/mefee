@@ -36,45 +36,55 @@
         </svg>
     </a>
 
+    <div id="user_info_bar" style="display: none;">Logged in as <span id="username"></span> - <a id="logout" onclick="logout()" style="cursor: pointer;">Logout</a></div>
+    
     <h1>mefee</h1>
-
     <br />
 
-    <fieldset id="fieldset">
-        <label for="datetime">Date/Time</label>
-        <input type="datetime-local" name="datetime" id="datetime">
+    <div id="loading" align="center">
+        <h1>Loading...</h1>
+    </div>
+    </div>
+    <div id="login_page" style="display: none;" align="center">
+        <button id="login_button" onclick="login()">Login with Google</button>
+    </div>
+    <div id="content_page" style="display: none;">
+        <fieldset id="fieldset">
+            <label for="datetime">Date/Time</label>
+            <input type="datetime-local" name="datetime" id="datetime">
 
-        <label for="temperature">Temperature</label>
-        <input type="number" name="temperature" id="temperature" placeholder="98.6" value="98.6">
+            <label for="temperature">Temperature</label>
+            <input type="number" name="temperature" id="temperature" placeholder="98.6" value="98.6">
 
-        <div>
-            <input type="radio" name="inputTemperatureUnit" id="inputFarenheit" value="f" checked>
-            <label for="inputFarenheit">Farenheit</label>
-        </div>
-        <div>
-            <input type="radio" name="inputTemperatureUnit" id="inputCelsius" value="c">
-            <label for="inputCelsius">Celsius</label>
-        </div>
-
-        <br />
-        <input id="fieldset-btn" type="submit">
-    </fieldset>
-
-    <div id="results" style="display: none;">
-        <canvas id="chart" width="600" height="300"></canvas>
-
-        <form>
             <div>
-                <input type="radio" name="displayTemperatureUnit" id="displayFarenheit" value="f" checked>
-                <label for="displayFarenheit">Farenheit</label>
+                <input type="radio" name="inputTemperatureUnit" id="inputFarenheit" value="f" checked>
+                <label for="inputFarenheit">Farenheit</label>
             </div>
             <div>
-                <input type="radio" name="displayTemperatureUnit" id="displayCelsius" value="c">
-                <label for="displayCelsius">Celsius</label>
+                <input type="radio" name="inputTemperatureUnit" id="inputCelsius" value="c">
+                <label for="inputCelsius">Celsius</label>
             </div>
-        </form>
 
-        <input id="results-btn" type="submit" value="Try again">
+            <br />
+            <input id="fieldset-btn" type="submit">
+        </fieldset>
+
+        <div id="results" style="display: none;">
+            <canvas id="chart" width="600" height="300"></canvas>
+
+            <form>
+                <div>
+                    <input type="radio" name="displayTemperatureUnit" id="displayFarenheit" value="f" checked>
+                    <label for="displayFarenheit">Farenheit</label>
+                </div>
+                <div>
+                    <input type="radio" name="displayTemperatureUnit" id="displayCelsius" value="c">
+                    <label for="displayCelsius">Celsius</label>
+                </div>
+            </form>
+
+            <input id="results-btn" type="submit" value="Try again">
+        </div>
     </div>
 </body>
 
