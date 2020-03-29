@@ -41,14 +41,6 @@
 
     <br />
     <h1>mefee</h1>
-    <div align="right">
-        <form>
-            <input type="radio" name="temperatureUnit" id="farenheit" value="f" checked>
-            <label for="farenheit">Farenheit</label>
-            <input type="radio" name="temperatureUnit" id="celsius" value="c">
-            <label for="celsius">Celsius</label>
-        </form>
-    </div>
     <br />
 
     <div id="loading" align="center">
@@ -60,6 +52,16 @@
     </div>
 
     <div id="content_page" style="display: none;">
+        <div align="right">
+            <form>
+                <input type="radio" name="temperatureUnit" id="farenheit" value="f" checked>
+                <label for="farenheit">Farenheit</label>
+                <input type="radio" name="temperatureUnit" id="celsius" value="c">
+                <label for="celsius">Celsius</label>
+            </form>
+        </div>
+
+        <br/>
 
         <button id="tab_button_form" onclick="showFormTab()" class="tab selected">Input</button>
         <button id="tab_button_results" onclick="showResultsTab()" class="tab">Your Results</button>
