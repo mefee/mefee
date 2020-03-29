@@ -36,54 +36,57 @@
         </svg>
     </a>
 
-    <div id="user_info_bar" style="display: none;">Logged in as <span id="username"></span> - <a id="logout" onclick="logout()" style="cursor: pointer;">Logout</a></div>
-    
+    <div id="user_info_bar" style="display: none;">Logged in as <span id="username"></span> - <a id="logout"
+            onclick="logout()" style="cursor: pointer;">Logout</a></div>
+
+    <br />
     <h1>mefee</h1>
+    <div align="right">
+        <form>
+            <input type="radio" name="temperatureUnit" id="farenheit" value="f" checked>
+            <label for="farenheit">Farenheit</label>
+            <input type="radio" name="temperatureUnit" id="celsius" value="c">
+            <label for="celsius">Celsius</label>
+        </form>
+    </div>
     <br />
 
     <div id="loading" align="center">
         <h1>Loading...</h1>
     </div>
-    </div>
+
     <div id="login_page" style="display: none;" align="center">
         <button id="login_button" onclick="login()">Login with Google</button>
     </div>
+
     <div id="content_page" style="display: none;">
-        <fieldset id="fieldset">
+
+        <button id="tab_button_form" onclick="showFormTab()" class="tab selected">Input</button>
+        <button id="tab_button_results" onclick="showResultsTab()" class="tab">Your Results</button>
+        
+        <hr class="tab-bar" />
+
+        <div id="tab_form" align="center">
+            <br />
+
             <label for="datetime">Date/Time</label>
             <input type="datetime-local" name="datetime" id="datetime">
 
-            <label for="temperature">Temperature</label>
-            <input type="number" name="temperature" id="temperature" placeholder="98.6" value="98.6">
-
-            <div>
-                <input type="radio" name="inputTemperatureUnit" id="inputFarenheit" value="f" checked>
-                <label for="inputFarenheit">Farenheit</label>
-            </div>
-            <div>
-                <input type="radio" name="inputTemperatureUnit" id="inputCelsius" value="c">
-                <label for="inputCelsius">Celsius</label>
-            </div>
+            <br />
+            
+            <label for="temperature" style="display: block;">Temperature</label>
+            <span><input style="display: inherit;" type="number" name="temperature" id="temperature" placeholder="98.6" value="98.6">
+                <span id="temperature-unit">F</span>
+            </span>
 
             <br />
+            <br />
+            <br />
             <input id="fieldset-btn" type="submit">
-        </fieldset>
-
-        <div id="results" style="display: none;">
+        </div>
+        
+        <div id="tab_results" style="display: none;">
             <canvas id="chart" width="600" height="300"></canvas>
-
-            <form>
-                <div>
-                    <input type="radio" name="displayTemperatureUnit" id="displayFarenheit" value="f" checked>
-                    <label for="displayFarenheit">Farenheit</label>
-                </div>
-                <div>
-                    <input type="radio" name="displayTemperatureUnit" id="displayCelsius" value="c">
-                    <label for="displayCelsius">Celsius</label>
-                </div>
-            </form>
-
-            <input id="results-btn" type="submit" value="Try again">
         </div>
     </div>
 </body>

@@ -585,6 +585,20 @@ window.onload = function () {
 	});
 }
 
+function showFormTab() {
+	$('#tab_button_results').removeClass('selected')
+	$('#tab_button_form').addClass('selected')
+	$('#tab_results').hide()
+	$('#tab_form').show()
+}
+
+function showResultsTab() {
+	$('#tab_button_form').removeClass('selected')
+	$('#tab_button_results').addClass('selected')
+	$('#tab_form').hide()
+	$('#tab_results').show()
+}
+
 function main() {
 	var user = firebase.auth().currentUser
 	console.log(user)
@@ -679,30 +693,16 @@ function main() {
 
 		$('#datetime').val(new Date().toDateInputValue())
 
-		$('input[type=radio][name=inputTemperatureUnit]').change(function () {
+		$('input[type=radio][name=temperatureUnit]').change(function () {
 			if (temperatureUnit == 'c' && this.value == 'f') {
 				chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
 				temperatureUnit = 'f'
-				$('#displayFarenheit').prop('checked', true)
+				$("#temperature-unit").html('F')
 			}
 			else if (temperatureUnit == 'f' && this.value == 'c') {
 				chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
 				temperatureUnit = 'c'
-				$('#displayCelsius').prop('checked', true)
-			}
-			dataChanged()
-		});
-
-		$('input[type=radio][name=displayTemperatureUnit]').change(function () {
-			if (temperatureUnit == 'c' && this.value == 'f') {
-				chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
-				temperatureUnit = 'f'
-				$('#inputFarenheit').prop('checked', true)
-			}
-			else if (temperatureUnit == 'f' && this.value == 'c') {
-				chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
-				temperatureUnit = 'c'
-				$('#inputCelsius').prop('checked', true)
+				$("#temperature-unit").html('C')
 			}
 			dataChanged()
 		});

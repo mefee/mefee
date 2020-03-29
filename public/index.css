@@ -28,3 +28,17 @@
         animation: octocat-wave 560ms ease-in-out
     }
 }
+
+.tab {
+    border-bottom-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    margin-bottom: 0px;
+}
+
+.tab-bar {
+    margin-top: 0px;
+}
+
+.tab.selected {
+    background: #324759;
+}
