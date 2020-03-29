@@ -460,6 +460,8 @@ function getSD(data) {
 
 var temperatureUnit = "F"
 var chart
+var user
+var db
 
 function calculateBar(data) {
 	var data = data.map(function (d) { return d.y })
@@ -534,7 +536,6 @@ window.onload = function () {
 
 	firebase.initializeApp(firebaseConfig);
 	firebase.analytics();
-	firebase.firestore();
 
 	firebase.auth().getRedirectResult().then(function (result) {
 		if (result.credential) {
@@ -566,17 +567,17 @@ function showResultsTab() {
 }
 
 function main() {
-	var user = firebase.auth().currentUser
-	console.log(user)
+	user = firebase.auth().currentUser
+	db = firebase.firestore()
 
 	if (!user) {
 		$('#loading').hide()
 		$('#content_page').hide()
 		$('#login_page').show()
 	} else {
-		$('#loading').hide()
+		$('#loading').show()
 		$('#login_page').hide()
-		$('#content_page').show()
+		$('#content_page').hide()
 
 		$('#username').html(user.email)
 		$('#user_info_bar').show()
@@ -589,7 +590,7 @@ function main() {
 					showLine: false,
 					pointRadius: 5,
 					pointBackgroundColor: '#55DD55',
-					data: loadData()
+					data: []
 				}, {
 					borderColor: '#FF0000',
 					fill: false,
@@ -666,17 +667,57 @@ function main() {
 			dataChanged()
 		});
 
-		dataChanged()
+		loadData()
 	}
 }
 
+function setData(data) {
+	chart.data.datasets[0].data = data
+	dataChanged()
+	$('#loading').hide()
+	$('#login_page').hide()
+	$('#content_page').show()
+}
+
 function loadData() {
-	// TODO: load
+	db.collection("users").doc(user.uid).get().then(function (doc) {
+		if (doc.exists) {
+			var data = doc.data()
+			console.log("Document data:", data);
+			var dataToUse = []
+			for(e of data.data) {
+				dataToUse.push({
+					x: moment(e.datetime),
+					y: temperatureUnit == 'F' ? e.temperature : farenheitToCelsius(e.temperature)
+				})
+			}
+			setData(dataToUse)
+		} else {
+			console.log("No data found")
+			setData([])
+		}
+	}).catch(function (error) {
+		console.log("Error getting document:", error);
+	});
 	return []
 }
 
 function saveData(data) {
 	if (data) {
-		// TODO: save
+		var copyToSave = []
+		for(var e of data) {
+			copyToSave.push({
+				datetime : e.x.toDate(),
+				temperature : temperatureUnit == 'F' ? e.y : celsiusToFarenheit(e.y)
+			})
+		}
+		console.log(copyToSave)
+		db.collection("users").doc(user.uid).set({
+			data: copyToSave
+		}).then(function () {
+			console.log("Document successfully written!");
+		}).catch(function (error) {
+			console.error("Error writing document: ", error);
+		});
 	}
 }
