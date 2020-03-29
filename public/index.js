@@ -461,11 +461,6 @@ function getSD(data) {
 var temperatureUnit = "F"
 var chart
 
-function getDataPoints() {
-	var data = []
-	return data
-}
-
 function calculateBar(data) {
 	var data = data.map(function (d) { return d.y })
 	var result = 4 * getSD(data) * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
@@ -508,6 +503,7 @@ function dataChanged() {
 
 function deleteData(index) {
 	chart.data.datasets[0].data.splice(index, 1)
+	saveData(chart.data.datasets[0].data)
 	dataChanged()
 }
 
@@ -593,7 +589,7 @@ function main() {
 					showLine: false,
 					pointRadius: 5,
 					pointBackgroundColor: '#55DD55',
-					data: getDataPoints()
+					data: loadData()
 				}, {
 					borderColor: '#FF0000',
 					fill: false,
@@ -644,8 +640,7 @@ function main() {
 				y: Math.round(100 * $('#temperature').val()) / 100
 			})
 			dataChanged()
-			var expiration = moment().add(6, 'm').valueOf()
-			document.cookie = "data=" + escape(JSON.stringify(chart.data.datasets[0].data)) + ";expires=" + expiration + ";"
+			saveData(chart.data.datasets[0].data)
 			$('#fieldset').hide()
 			$('#results').show()
 		})
@@ -672,5 +667,16 @@ function main() {
 		});
 
 		dataChanged()
+	}
+}
+
+function loadData() {
+	// TODO: load
+	return []
+}
+
+function saveData(data) {
+	if (data) {
+		// TODO: save
 	}
 }
