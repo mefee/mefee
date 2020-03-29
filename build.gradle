@@ -4,6 +4,8 @@ buildscript {
     ext.appengine_version = '1.9.60'
     ext.appengine_plugin_version = '2.1.0'
     ext.gce_logback_version = '0.60.0-alpha'
+    ext.exposed_version = '0.22.1'
+    ext.postgres_driver_version = '42.2.2'
 
     repositories {
         jcenter()
@@ -35,6 +37,10 @@ dependencies {
     compile "io.ktor:ktor-server-servlet:$ktor_version"
     compile "io.ktor:ktor-html-builder:$ktor_version"
     compile "com.google.cloud:google-cloud-logging-logback:$gce_logback_version"
+    compile "org.jetbrains.exposed:exposed-core:$exposed_version"
+    compile "org.jetbrains.exposed:exposed-dao:$exposed_version"
+    compile "org.jetbrains.exposed:exposed-jdbc:$exposed_version"
+    compile "org.postgresql:postgresql:$postgres_driver_version"
 
     providedCompile "com.google.appengine:appengine:$appengine_version"
 }
