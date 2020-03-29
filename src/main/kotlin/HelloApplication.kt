@@ -68,10 +68,16 @@ fun Application.main() {
         }
     }
 
-    Database.connect("jdbc:postgresql://localhost:5432/postgres", driver = "org.postgresql.Driver", user = "postgres", password = "")
+    val databaseHost = System.getenv("POSTGRES_HOST")
+    val databasePassword = System.getenv("POSTGRES_PASSWORD")
+    Database.connect("jdbc:postgresql://$databaseHost:5432/postgres",
+            driver = "org.postgresql.Driver",
+            user = "postgres",
+            password = databasePassword)
 
     transaction {
-        addLogger(StdOutSqlLogger)
+        addLogger(Slf4jSqlDebugLogger)
         SchemaUtils.createMissingTablesAndColumns(Data)
+        println(id)
     }
 }
