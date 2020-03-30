@@ -648,6 +648,7 @@ function main() {
 			dataChanged()
 			saveData(chart.data.datasets[0].data)
 			showResultsTab()
+			$('#datetime').val(new Date().toDateInputValue())
 		})
 
 		$('#datetime').val(new Date().toDateInputValue())

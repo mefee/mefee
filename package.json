@@ -4,7 +4,8 @@
   "description": "[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)",
   "main": "index.js",
   "scripts": {
-    "test": "serve public"
+    "test": "serve public",
+    "deploy": "firebase deploy"
   },
   "repository": {
     "type": "git",
