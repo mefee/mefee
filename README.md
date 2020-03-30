@@ -1,4 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784644296-117aff91bf68fe2afd2d4d12)
 
 # [mefee](https://mefee.org)
 
