@@ -726,7 +726,10 @@ function saveData(data) {
 		}
 		console.log(copyToSave)
 		db.collection("users").doc(user.uid).set({
-			data: copyToSave
+			data: copyToSave,
+			schema_version: 1,
+			sync_time: moment().toDate(),
+			preferred_temperature_unit: temperatureUnit
 		}).then(function () {
 			console.log("Document successfully written!");
 		}).catch(function (error) {
