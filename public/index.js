@@ -451,9 +451,7 @@ var db
 
 function calculateBar(data) {
 	try {
-		var data = data
-			.filter(function (d) { return moment().diff(d.x, 'days') > 0 })
-			.map(function (d) { return d.y })
+		var data = data.map(function (d) { return d.y })
 		var result = 4 * getSD(data) * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
 		return Math.min(result + getMean(data), temperatureUnit == 'F' ? 100 : 37.8)
 	} catch (error) {
@@ -475,15 +473,16 @@ function getLatestDate(data) {
 }
 
 function dataChanged() {
-	chart.data.datasets[0].data.sort(function(a, b) { return a.x - b.x })
+	chart.data.datasets[0].data.sort(function (a, b) { return a.x - b.x })
 
-	if (chart.data.datasets[0].data.length > 1) {
-		var bar = calculateBar(chart.data.datasets[0].data)
+	var data = chart.data.datasets[0].data.filter(function (d) { return moment().diff(d.x, 'days') > 0 && d.status != 'sick' })
+	if (data > 1) {
+		var bar = calculateBar(data)
 		chart.data.datasets[1].data = [{
-			x: getEarliestDate(chart.data.datasets[0].data).clone().add(-1, 'days'),
+			x: getEarliestDate(chart.data.datasets[0].data).clone().add(-0.25, 'days'),
 			y: bar
 		}, {
-			x: getLatestDate(chart.data.datasets[0].data).clone().add(1, 'days'),
+			x: getLatestDate(chart.data.datasets[0].data).clone().add(0.25, 'days'),
 			y: bar
 		}]
 
@@ -494,40 +493,54 @@ function dataChanged() {
 		if (length >= 5 && chart.data.datasets[0].data[length - 1].y <= bar) {
 			$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
 			sick = false
-			chart.data.datasets[0].data[length - 1].original_status = 'Fine'
+			chart.data.datasets[0].data[length - 1].status = 'healthy'
 		} else if (chart.data.datasets[0].data[length - 1].y >= (temperatureUnit == 'F' ? 100 : 37.8)) {
 			$('#result_message').html("You are running a fever, please contact a medical professional.")
 			sick = true
-			chart.data.datasets[0].data[length - 1].original_status = 'Sick'
+			chart.data.datasets[0].data[length - 1].status = 'sick'
 		} else if (length >= 5 && chart.data.datasets[0].data[length - 1].y > bar) {
 			$('#result_message').html("Your temperature seems higher than normal, please <b>self-isolate</b> and continue to record your temperature daily.")
 			sick = true
-			chart.data.datasets[0].data[length - 1].original_status = 'Sick'
+			chart.data.datasets[0].data[length - 1].status = 'sick'
 		} else {
 			$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
 			sick = false
-			chart.data.datasets[0].data[length - 1].original_status = 'New'
+			chart.data.datasets[0].data[length - 1].status = 'healthy'
 		}
 	} else {
-		for(e of chart.data.datasets[0].data) {
-			if(!e.original_status) {
-				e.original_status = 'New'
+		for (e of chart.data.datasets[0].data) {
+			if (!e.status) {
+				e.status = 'healthy'
 			}
-			e.status = 'New'
 		}
 		sick = false
 		$('#chart').hide()
 	}
 
 	$('#data-table').html(chart.data.datasets[0].data.map(function (it, index) {
-		return "<tr><td>" + moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" + (Math.round(it.y * 100) / 100) + " " + temperatureUnit + "</td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>"
+		return "<tr><td>" +
+			moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
+			(Math.round(it.y * 100) / 100) + " " + temperatureUnit +
+			"</td><td><select id='status_" + index + "' onchange='change_status(" + index + ")' style='cursor: pointer;'>" +
+			"<option value='healthy' " + (it.status == 'sick' ? "" : "selected") + ">Healthy</option>" +
+			"<option value='sick' " + (it.status == 'sick' ? "selected" : "") + ">Sick</option>" +
+			"</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>"
 	}).join("\n"))
+}
+
+function change_status(index) {
+	console.log(chart.data.datasets[0].data[index])
+	chart.data.datasets[0].data[index].status = $('#status_' + index).val()
+	console.log(chart.data.datasets[0].data[index])
+	dataChanged()
+	saveData(chart.data.datasets[0].data)
 }
 
 function deleteData(index) {
 	chart.data.datasets[0].data.splice(index, 1)
 	saveData(chart.data.datasets[0].data)
 	dataChanged()
+	saveData(chart.data.datasets[0].data)
 }
 
 function login() {
@@ -558,17 +571,9 @@ window.onload = function () {
 	firebase.initializeApp(firebaseConfig);
 	firebase.analytics();
 
-	firebase.auth().getRedirectResult().then(function (result) {
-		if (result.credential) {
-			var token = result.credential.accessToken;
-		}
-		var user = result.user;
+	firebase.auth().getRedirectResult().then(function () {
 		main()
 	}).catch(function (error) {
-		var errorCode = error.code;
-		var errorMessage = error.message;
-		var email = error.email;
-		var credential = error.credential;
 		console.error(error)
 	});
 }
@@ -721,7 +726,7 @@ function loadData() {
 		if (doc.exists) {
 			var data = doc.data()
 			console.log("Document data:", data);
-			if(data.preferred_temperature_unit) {
+			if (data.preferred_temperature_unit) {
 				setTemperatureUnit(data.preferred_temperature_unit)
 				$('#temperature').val(temperatureUnit == 'F' ? 98.6 : 37)
 			}
@@ -730,8 +735,7 @@ function loadData() {
 				dataToUse.push({
 					x: moment.unix(e.datetime.seconds),
 					y: temperatureUnit == 'F' ? e.temperature : farenheitToCelsius(e.temperature),
-					status: e.status ? e.status : 'Unknown',
-					original_status: e.original_status ? e.original_status : 'Unknown'
+					status: e.status ? e.status : 'healthy'
 				})
 			}
 			setData(dataToUse)
@@ -752,8 +756,7 @@ function saveData(data) {
 			copyToSave.push({
 				datetime: e.x.toDate(),
 				temperature: temperatureUnit == 'F' ? e.y : celsiusToFarenheit(e.y),
-				status: e.status ? e.status : (e.original_status ? e.original_status : 'Unknown'),
-				original_status: e.original_status ? e.original_status : 'Unknown'
+				status: e.status ? e.status : 'healthy'
 			})
 		}
 		console.log(copyToSave)
