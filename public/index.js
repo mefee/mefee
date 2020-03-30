@@ -449,9 +449,11 @@ var user
 var db
 
 function calculateBar(data) {
-	var data = data.map(function (d) { return d.y })
+	var data = data
+		.filter(function (d) { return moment().diff(d.x, 'days') > 0 })
+		.map(function (d) { return d.y })
 	var result = 4 * getSD(data) * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
-	return result + getMean(data)
+	return Math.min(result + getMean(data), temperatureUnit == 'F' ? 100 : 37.8)
 }
 
 function getEarliestDate(data) {
@@ -470,10 +472,10 @@ function dataChanged() {
 	if (chart.data.datasets[0].data.length > 1) {
 		var bar = calculateBar(chart.data.datasets[0].data)
 		chart.data.datasets[1].data = [{
-			x: getEarliestDate(chart.data.datasets[0].data),
+			x: getEarliestDate(chart.data.datasets[0].data).clone().add(-1, 'days'),
 			y: bar
 		}, {
-			x: getLatestDate(chart.data.datasets[0].data),
+			x: getLatestDate(chart.data.datasets[0].data).clone().add(1, 'days'),
 			y: bar
 		}]
 
@@ -677,7 +679,7 @@ function loadData() {
 			var data = doc.data()
 			console.log("Document data:", data);
 			var dataToUse = []
-			for(e of data.data) {
+			for (e of data.data) {
 				dataToUse.push({
 					x: moment.unix(e.datetime.seconds),
 					y: temperatureUnit == 'F' ? e.temperature : farenheitToCelsius(e.temperature)
@@ -697,10 +699,10 @@ function loadData() {
 function saveData(data) {
 	if (data) {
 		var copyToSave = []
-		for(var e of data) {
+		for (var e of data) {
 			copyToSave.push({
-				datetime : e.x.toDate(),
-				temperature : temperatureUnit == 'F' ? e.y : celsiusToFarenheit(e.y)
+				datetime: e.x.toDate(),
+				temperature: temperatureUnit == 'F' ? e.y : celsiusToFarenheit(e.y)
 			})
 		}
 		console.log(copyToSave)
