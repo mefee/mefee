@@ -479,10 +479,10 @@ function dataChanged() {
 	if (data.length > 1) {
 		var bar = calculateBar(data)
 		chart.data.datasets[1].data = [{
-			x: getEarliestDate(chart.data.datasets[0].data).clone().add(-0.25, 'days'),
+			x: getEarliestDate(chart.data.datasets[0].data).clone().add(-1, 'days'),
 			y: bar
 		}, {
-			x: getLatestDate(chart.data.datasets[0].data).clone().add(0.25, 'days'),
+			x: getLatestDate(chart.data.datasets[0].data).clone().add(1, 'days'),
 			y: bar
 		}]
 
@@ -491,21 +491,37 @@ function dataChanged() {
 
 		var length = chart.data.datasets[0].data.length
 		if (length >= 5 && chart.data.datasets[0].data[length - 1].y <= bar) {
-			$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
-			chart.data.datasets[0].data[length - 1].status = sick ? 'sick' : 'healthy'
-			// TODO:  You seem better
+			if (sick) {
+				$('#feeling_better').show()
+				$('#result_message').hide()
+				chart.data.datasets[0].data[length - 1].status = 'sick'
+			} else {
+				$('#result_message').show()
+				$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
+				chart.data.datasets[0].data[length - 1].status = 'healthy'
+			}
 		} else if (chart.data.datasets[0].data[length - 1].y >= (temperatureUnit == 'F' ? 100 : 37.8)) {
+			$('#feeling_better').hide()
+			$('#result_message').show()
 			$('#result_message').html("You are running a fever, please contact a medical professional.")
 			sick = true
 			chart.data.datasets[0].data[length - 1].status = 'sick'
 		} else if (length >= 5 && chart.data.datasets[0].data[length - 1].y > bar) {
+			$('#feeling_better').hide()
+			$('#result_message').show()
 			$('#result_message').html("Your temperature seems higher than normal, please <b>self-isolate</b> and continue to record your temperature daily.")
 			sick = true
 			chart.data.datasets[0].data[length - 1].status = 'sick'
 		} else {
-			$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
-			chart.data.datasets[0].data[length - 1].status = sick ? 'sick' : 'healthy'
-			// TODO:  You seem better
+			if (sick) {
+				$('#feeling_better').show()
+				$('#result_message').hide()
+				chart.data.datasets[0].data[length - 1].status = 'sick'
+			} else {
+				$('#result_message').show()
+				$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
+				chart.data.datasets[0].data[length - 1].status = 'healthy'
+			}
 		}
 	} else {
 		for (e of chart.data.datasets[0].data) {
@@ -514,6 +530,8 @@ function dataChanged() {
 			}
 		}
 		$('#chart').hide()
+		$('#result_message').show()
+		$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
 	}
 
 	$('#data-table').html(chart.data.datasets[0].data.map(function (it, index) {
@@ -527,10 +545,15 @@ function dataChanged() {
 	}).join("\n"))
 }
 
+function not_sick() {
+	sick = false
+	dataChanged()
+	saveData(chart.data.datasets[0].data)
+	$('#feeling_better').hide()
+}
+
 function change_status(index) {
-	console.log(chart.data.datasets[0].data[index])
 	chart.data.datasets[0].data[index].status = $('#status_' + index).val()
-	console.log(chart.data.datasets[0].data[index])
 	dataChanged()
 	saveData(chart.data.datasets[0].data)
 }
@@ -729,7 +752,7 @@ function loadData() {
 				setTemperatureUnit(data.preferred_temperature_unit)
 				$('#temperature').val(temperatureUnit == 'F' ? 98.6 : 37)
 			}
-			if(data.sick) {
+			if (data.sick) {
 				sick = true
 			}
 			var dataToUse = []
