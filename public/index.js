@@ -476,7 +476,7 @@ function dataChanged() {
 	chart.data.datasets[0].data.sort(function (a, b) { return a.x - b.x })
 
 	var data = chart.data.datasets[0].data.filter(function (d) { return moment().diff(d.x, 'days') > 0 && d.status != 'sick' })
-	if (data > 1) {
+	if (data.length > 1) {
 		var bar = calculateBar(data)
 		chart.data.datasets[1].data = [{
 			x: getEarliestDate(chart.data.datasets[0].data).clone().add(-0.25, 'days'),
@@ -492,8 +492,8 @@ function dataChanged() {
 		var length = chart.data.datasets[0].data.length
 		if (length >= 5 && chart.data.datasets[0].data[length - 1].y <= bar) {
 			$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
-			sick = false
-			chart.data.datasets[0].data[length - 1].status = 'healthy'
+			chart.data.datasets[0].data[length - 1].status = sick ? 'sick' : 'healthy'
+			// TODO:  You seem better
 		} else if (chart.data.datasets[0].data[length - 1].y >= (temperatureUnit == 'F' ? 100 : 37.8)) {
 			$('#result_message').html("You are running a fever, please contact a medical professional.")
 			sick = true
@@ -504,8 +504,8 @@ function dataChanged() {
 			chart.data.datasets[0].data[length - 1].status = 'sick'
 		} else {
 			$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
-			sick = false
-			chart.data.datasets[0].data[length - 1].status = 'healthy'
+			chart.data.datasets[0].data[length - 1].status = sick ? 'sick' : 'healthy'
+			// TODO:  You seem better
 		}
 	} else {
 		for (e of chart.data.datasets[0].data) {
@@ -513,7 +513,6 @@ function dataChanged() {
 				e.status = 'healthy'
 			}
 		}
-		sick = false
 		$('#chart').hide()
 	}
 
@@ -729,6 +728,9 @@ function loadData() {
 			if (data.preferred_temperature_unit) {
 				setTemperatureUnit(data.preferred_temperature_unit)
 				$('#temperature').val(temperatureUnit == 'F' ? 98.6 : 37)
+			}
+			if(data.sick) {
+				sick = true
 			}
 			var dataToUse = []
 			for (e of data.data) {
