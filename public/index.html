@@ -17,7 +17,8 @@
 
     <script src="index.js"></script>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
+    <link id='stylesheet' rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
     <link rel="stylesheet" href="index.css">
 </head>
 
@@ -36,8 +37,9 @@
         </svg>
     </a>
 
-    <div id="user_info_bar" style="display: none;">Logged in as <span id="username"></span> - <a id="logout"
-            onclick="logout()" style="cursor: pointer;">Logout</a></div>
+    <div id="user_info_bar" style="display: none;">Logged in as <span id="username">...</span> -
+        <a id="logout" onclick="logout()" style="cursor: pointer;">Logout</a>
+    </div>
 
     <br />
     <h1>mefee</h1>
@@ -91,8 +93,8 @@
 
         <div id="tab_results" style="display: none;">
             <br />
-            We need at least 2 data points from over 24 hours ago to be able to present analysis. 20 data points are ideal for accurate
-            results.
+            <h3 id="result_message">We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.</h3>
+            <br />
             <br />
             <canvas id="chart" width="600" height="300"></canvas>
             <br />
