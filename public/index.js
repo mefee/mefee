@@ -539,16 +539,29 @@ window.onload = function () {
 
 function showFormTab() {
 	$('#tab_button_results').removeClass('selected')
+	$('#tab_button_about').removeClass('selected')
 	$('#tab_button_form').addClass('selected')
 	$('#tab_results').hide()
+	$('#tab_about').hide()
 	$('#tab_form').show()
 }
 
 function showResultsTab() {
 	$('#tab_button_form').removeClass('selected')
+	$('#tab_button_about').removeClass('selected')
 	$('#tab_button_results').addClass('selected')
 	$('#tab_form').hide()
+	$('#tab_about').hide()
 	$('#tab_results').show()
+}
+
+function showAboutTab() {
+	$('#tab_button_form').removeClass('selected')
+	$('#tab_button_results').removeClass('selected')
+	$('#tab_button_about').addClass('selected')
+	$('#tab_form').hide()
+	$('#tab_results').hide()
+	$('#tab_about').show()
 }
 
 function main() {
