@@ -19,6 +19,8 @@ npm run-script test
 
 Depends on having `serve` installed on your path (recommend: `npm i --global serve`)
 
+This connects to the production firebase instance. There is no isolated test environment.
+
 # Deploying
 ```
 npm run-script deploy
