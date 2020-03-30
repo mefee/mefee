@@ -667,20 +667,28 @@ function main() {
 		$('#datetime').val(new Date().toDateInputValue())
 
 		$('input[type=radio][name=temperatureUnit]').change(function () {
-			if (temperatureUnit == 'C' && this.value == 'f') {
-				chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
-				temperatureUnit = 'F'
-				$("#temperature-unit").html('F')
-			}
-			else if (temperatureUnit == 'F' && this.value == 'c') {
-				chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
-				temperatureUnit = 'C'
-				$("#temperature-unit").html('C')
-			}
+			setTemperatureUnit(this.value)
 			dataChanged()
 		});
 
 		loadData()
+	}
+}
+
+function setTemperatureUnit(unit) {
+	if (temperatureUnit == 'C' && unit == 'F') {
+		chart.data.datasets[0].data.forEach(function (e) { e.y = celsiusToFarenheit(e.y) })
+		temperatureUnit = 'F'
+		$("#temperature-unit").html('F')
+		$("#farenheit").attr("checked", true)
+		$("#celsius").attr("checked", false)
+	}
+	else if (temperatureUnit == 'F' && unit == 'C') {
+		chart.data.datasets[0].data.forEach(function (e) { e.y = farenheitToCelsius(e.y) })
+		temperatureUnit = 'C'
+		$("#temperature-unit").html('C')
+		$("#farenheit").attr("checked", false)
+		$("#celsius").attr("checked", true)
 	}
 }
 
@@ -697,6 +705,10 @@ function loadData() {
 		if (doc.exists) {
 			var data = doc.data()
 			console.log("Document data:", data);
+			if(data.preferred_temperature_unit) {
+				setTemperatureUnit(data.preferred_temperature_unit)
+				$('#temperature').val(temperatureUnit == 'F' ? 98.6 : 37)
+			}
 			var dataToUse = []
 			for (e of data.data) {
 				dataToUse.push({
