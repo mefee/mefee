@@ -490,11 +490,11 @@ function dataChanged() {
 		$('#chart').show()
 
 		var length = chart.data.datasets[0].data.length
-		if (length >= 20 && chart.data.datasets[0].data[length - 1].y < bar) {
+		if (length >= 5 && chart.data.datasets[0].data[length - 1].y < bar) {
 			$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
 		} else if (chart.data.datasets[0].data[length - 1].y >= (temperatureUnit == 'F' ? 100 : 37.8)) {
 			$('#result_message').html("You are running a fever, please contact a medical professional.")
-		} else if (length >= 20 && chart.data.datasets[0].data[length - 1].y >= bar) {
+		} else if (length >= 5 && chart.data.datasets[0].data[length - 1].y >= bar) {
 			$('#result_message').html("Your temperature seems higher than normal, please <b>self-isolate</b> and continue to record your temperature daily.")
 		} else {
 			$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
