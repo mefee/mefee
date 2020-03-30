@@ -449,11 +449,16 @@ var user
 var db
 
 function calculateBar(data) {
-	var data = data
-		.filter(function (d) { return moment().diff(d.x, 'days') > 0 })
-		.map(function (d) { return d.y })
-	var result = 4 * getSD(data) * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
-	return Math.min(result + getMean(data), temperatureUnit == 'F' ? 100 : 37.8)
+	try {
+		var data = data
+			.filter(function (d) { return moment().diff(d.x, 'days') > 0 })
+			.map(function (d) { return d.y })
+		var result = 4 * getSD(data) * Math.sqrt((data.length - 1) / chisqrdistr(data.length - 1, 0.95))
+		return Math.min(result + getMean(data), temperatureUnit == 'F' ? 100 : 37.8)
+	} catch (error) {
+		console.error(error)
+		return temperatureUnit == 'F' ? 100 : 37.8
+	}
 }
 
 function getEarliestDate(data) {
