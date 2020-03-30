@@ -13,9 +13,15 @@ Ideally we need 20 days of temperature measurements.
  - If symptoms of COVID19 were detectable earlier, individuals could more effectively isolate at an earlier point in time, reducing the likelihood of transmission.
 
 # Running locally
-`npm test`
+```
+npm run-script test
+```
+
 Depends on having `serve` installed on your path (recommend: `npm i --global serve`)
 
 # Deploying
-`npm run-script deploy`
-Depends on having firebase-tools installed on your path (recommend: `npm i --global firebase-tools`)
+```
+npm run-script deploy
+```
+
+Depends on having `firebase-tools` installed on your path (recommend: `npm i --global firebase-tools`)
