@@ -491,7 +491,7 @@ function dataChanged() {
 		$('#chart').show()
 
 		var length = chart.data.datasets[0].data.length
-		if (length >= 5 && chart.data.datasets[0].data[length - 1].y < bar) {
+		if (length >= 5 && chart.data.datasets[0].data[length - 1].y <= bar) {
 			$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
 			sick = false
 			chart.data.datasets[0].data[length - 1].original_status = 'Fine'
@@ -499,7 +499,7 @@ function dataChanged() {
 			$('#result_message').html("You are running a fever, please contact a medical professional.")
 			sick = true
 			chart.data.datasets[0].data[length - 1].original_status = 'Sick'
-		} else if (length >= 5 && chart.data.datasets[0].data[length - 1].y >= bar) {
+		} else if (length >= 5 && chart.data.datasets[0].data[length - 1].y > bar) {
 			$('#result_message').html("Your temperature seems higher than normal, please <b>self-isolate</b> and continue to record your temperature daily.")
 			sick = true
 			chart.data.datasets[0].data[length - 1].original_status = 'Sick'
@@ -509,6 +509,13 @@ function dataChanged() {
 			chart.data.datasets[0].data[length - 1].original_status = 'New'
 		}
 	} else {
+		for(e of chart.data.datasets[0].data) {
+			if(!e.original_status) {
+				e.original_status = 'New'
+			}
+			e.status = 'New'
+		}
+		sick = false
 		$('#chart').hide()
 	}
 
@@ -722,7 +729,9 @@ function loadData() {
 			for (e of data.data) {
 				dataToUse.push({
 					x: moment.unix(e.datetime.seconds),
-					y: temperatureUnit == 'F' ? e.temperature : farenheitToCelsius(e.temperature)
+					y: temperatureUnit == 'F' ? e.temperature : farenheitToCelsius(e.temperature),
+					status: e.status ? e.status : 'Unknown',
+					original_status: e.original_status ? e.original_status : 'Unknown'
 				})
 			}
 			setData(dataToUse)
