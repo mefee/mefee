@@ -444,6 +444,7 @@ function getSD(data) {
 }
 
 var temperatureUnit = "F"
+var sick = false
 var chart
 var user
 var db
@@ -492,12 +493,20 @@ function dataChanged() {
 		var length = chart.data.datasets[0].data.length
 		if (length >= 5 && chart.data.datasets[0].data[length - 1].y < bar) {
 			$('#result_message').html("You seem fine today, please continue recording your temperature daily.")
+			sick = false
+			chart.data.datasets[0].data[length - 1].original_status = 'Fine'
 		} else if (chart.data.datasets[0].data[length - 1].y >= (temperatureUnit == 'F' ? 100 : 37.8)) {
 			$('#result_message').html("You are running a fever, please contact a medical professional.")
+			sick = true
+			chart.data.datasets[0].data[length - 1].original_status = 'Sick'
 		} else if (length >= 5 && chart.data.datasets[0].data[length - 1].y >= bar) {
 			$('#result_message').html("Your temperature seems higher than normal, please <b>self-isolate</b> and continue to record your temperature daily.")
+			sick = true
+			chart.data.datasets[0].data[length - 1].original_status = 'Sick'
 		} else {
 			$('#result_message').html("We have insufficient data so far to make a recommendation. Please continue to record your temperature daily.")
+			sick = false
+			chart.data.datasets[0].data[length - 1].original_status = 'New'
 		}
 	} else {
 		$('#chart').hide()
@@ -733,7 +742,9 @@ function saveData(data) {
 		for (var e of data) {
 			copyToSave.push({
 				datetime: e.x.toDate(),
-				temperature: temperatureUnit == 'F' ? e.y : celsiusToFarenheit(e.y)
+				temperature: temperatureUnit == 'F' ? e.y : celsiusToFarenheit(e.y),
+				status: e.status ? e.status : (e.original_status ? e.original_status : 'Unknown'),
+				original_status: e.original_status ? e.original_status : 'Unknown'
 			})
 		}
 		console.log(copyToSave)
@@ -741,7 +752,8 @@ function saveData(data) {
 			data: copyToSave,
 			schema_version: 1,
 			sync_time: moment().toDate(),
-			preferred_temperature_unit: temperatureUnit
+			preferred_temperature_unit: temperatureUnit,
+			sick: sick
 		}).then(function () {
 			console.log("Document successfully written!");
 		}).catch(function (error) {
