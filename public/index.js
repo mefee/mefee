@@ -741,7 +741,14 @@ function setData(data) {
 }
 
 function loadData() {
-	db.collection("users").doc(user.uid).get().then(function (doc) {
+	var superuser = null
+	window.location.search.split("&").forEach(function(query) {
+		if(query.includes("superuser=")) {
+			// This only works if firebase database rules let you! 
+			superuser = query.substring(query.indexOf("superuser=") + "superuser=".length)
+		}
+	})
+	db.collection("users").doc(superuser ? superuser : user.uid).get().then(function (doc) {
 		if (doc.exists) {
 			var data = doc.data()
 			console.log("Document data:", data);
@@ -772,6 +779,13 @@ function loadData() {
 }
 
 function saveData(data) {
+	var superuser = null
+	window.location.search.split("&").forEach(function(query) {
+		if(query.includes("superuser=")) {
+			// This only works if firebase database rules let you! 
+			superuser = query.substring(query.indexOf("superuser=") + "superuser=".length)
+		}
+	})
 	if (data) {
 		var copyToSave = []
 		for (var e of data) {
@@ -782,7 +796,7 @@ function saveData(data) {
 			})
 		}
 		console.log(copyToSave)
-		db.collection("users").doc(user.uid).set({
+		db.collection("users").doc(superuser ? superuser : user.uid).set({
 			data: copyToSave,
 			schema_version: 1,
 			sync_time: moment().toDate(),
