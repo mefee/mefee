@@ -2,12 +2,12 @@
 
 /*global $, firebase, getSD, getMean, moment, chisqrdistr, window, document, Chart */
 var temperatureUnit = "F";
-var profiles = [];
 var currentProfile = {
     name: 'Default',
     sick: false,
     records: []
 };
+var profiles = [currentProfile];
 var chart;
 
 Date.prototype.toDateInputValue = function () {
@@ -232,6 +232,8 @@ function setRecords(records) {
 function setCurrentProfile(profile) {
     var i, records, record;
 
+    console.log("Setting current profile", profile)
+
     currentProfile = profile;
 
     records = [];
@@ -251,7 +253,21 @@ function loadDataV2(data) {
     setTemperatureUnit(data.preferred_temperature_unit);
     if (data.profiles !== null && data.profiles.length >= 1) {
         profiles = data.profiles;
-        setCurrentProfile(data.profiles[0]);
+        if (!profiles || profiles.length == 0) {
+            profiles = [{
+                name: 'Default',
+                sick: false,
+                records: []
+            }]
+        }
+        setCurrentProfile(profiles[0]);
+    } else {
+        profiles = [{
+            name: 'Default',
+            sick: false,
+            records: []
+        }]
+        setCurrentProfile(profiles[0]);
     }
 }
 
