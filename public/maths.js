@@ -1,3 +1,5 @@
+"use strict";
+
 var SIGNIFICANT = 5;
 
 function chisqrdistr(n, p) {

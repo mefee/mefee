@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "serve public",
-    "deploy": "firebase deploy"
+    "deploy": "firebase deploy",
+    "lint": "jslint public/index.js"
   },
   "repository": {
     "type": "git",
