@@ -578,7 +578,7 @@ function logout() {
 window.onload = function () {
 	var firebaseConfig = {
 		apiKey: "AIzaSyDLowILuyzRrK9OLY9Ie_rgjI8dIVsL6hM",
-		authDomain: "auth.mefee.org",
+		authDomain: "mefee-59275.firebaseapp.com",
 		databaseURL: "https://mefee-59275.firebaseio.com",
 		projectId: "mefee-59275",
 		storageBucket: "mefee-59275.appspot.com",
