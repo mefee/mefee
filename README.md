@@ -1,7 +1,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784644296-117aff91bf68fe2afd2d4d12)
 
-# [mefee](https://mefee.org)
+# [MeFee Temperature Tracker](https://mefee.org)
 
 A site where people can log their temperature readings daily. Once we have enough data (at least 20 days worth) we can provide personalised feedback on if the person's temperature seems to be trending towards a fever, before it reaches the official degree required. This may help people spot symptoms of COVID19 earlier and so self-isolate to protect others that much sooner.
 
