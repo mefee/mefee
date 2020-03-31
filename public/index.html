@@ -22,8 +22,6 @@
     <script src="maths.js"></script>
     <script src="index.js"></script>
 
-    <link id='stylesheet' rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/dark.min.css">
     <link rel="stylesheet" href="index.css">
 </head>
 
@@ -66,6 +64,14 @@
                 <input type="radio" name="temperatureUnit" id="celsius" value="C">
                 <label for="celsius">Celsius</label>
             </form>
+        </div>
+        <div style="display: none;">
+            <form>
+                <label for='profile_selector'>Current Profile: </label>
+                <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
+                <option value='0'>Default</option>
+            </select>            
+        </form>
         </div>
 
         <br />
@@ -111,7 +117,7 @@
                 your temp. Twice daily is best.</h3>
             <div id="feeling_better" style="display: none;">
                 <h3>You seem to be feeling better, is that right?</h3>
-                <button onclick="not_sick()">Yes, that's right</button>
+                <button onclick="notSick()">Yes, that's right</button>
             </div>
             <br />
             <br />

@@ -160,21 +160,21 @@ function dataChanged() {
         return "<tr><td>" +
             moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
             (Math.round(it.y * 100) / 100) + " " + temperatureUnit +
-            "</td><td><select id='status_" + index + "' onchange='change_status(" + index + ")' style='cursor: pointer;'>" +
+            "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
             "<option value='healthy' " + (it.sick ? "" : "selected") + ">Healthy</option>" +
             "<option value='sick' " + (it.sick ? "selected" : "") + ">Sick</option>" +
             "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
     }).join("\n"));
 }
 
-function not_sick() {
+function notSick() {
     currentProfile.sick = false;
     dataChanged();
     persistRecords(chart.data.datasets[0].data);
     $('#feeling_better').hide();
 }
 
-function change_status(index) {
+function changeStatus(index) {
     chart.data.datasets[0].data[index].sick = $('#status_' + index).val() === 'sick';
     dataChanged();
     persistRecords(chart.data.datasets[0].data);
@@ -232,7 +232,7 @@ function setRecords(records) {
 function setCurrentProfile(profile) {
     var i, records, record;
 
-    console.log("Setting current profile", profile)
+    console.log("Setting current profile", profile);
 
     currentProfile = profile;
 
@@ -253,12 +253,12 @@ function loadDataV2(data) {
     setTemperatureUnit(data.preferred_temperature_unit);
     if (data.profiles !== null && data.profiles.length >= 1) {
         profiles = data.profiles;
-        if (!profiles || profiles.length == 0) {
+        if (!profiles || profiles.length === 0) {
             profiles = [{
                 name: 'Default',
                 sick: false,
                 records: []
-            }]
+            }];
         }
         setCurrentProfile(profiles[0]);
     } else {
@@ -266,7 +266,7 @@ function loadDataV2(data) {
             name: 'Default',
             sick: false,
             records: []
-        }]
+        }];
         setCurrentProfile(profiles[0]);
     }
 }
