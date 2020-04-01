@@ -198,6 +198,25 @@ function deleteData(index) {
     renderRecords(currentProfile.records);
 }
 
+function renameProfile() {
+    var name, matches;
+
+    name = $('#existing_profile_name').val();
+    
+    matches = profiles.filter(function (profile) {
+        return profile.name === name;
+    });
+
+    if (matches.length === 0) {
+        currentProfile.name = name;
+        renderProfiles();
+        setCurrentProfile(currentProfile);
+    }
+
+    persistData();
+
+}
+
 function login() {
     var provider = new firebase.auth.GoogleAuthProvider();
     firebase.auth().signInWithRedirect(provider);
@@ -240,7 +259,9 @@ function setTemperatureUnit(unit) {
 
 function setCurrentProfile(profile) {
     console.log("Setting current profile", profile);
+    $('#profile_selector').val(profile.name);
     $('#current_profile_name').html(profile.name);
+    $('#existing_profile_name').val(profile.name);
     currentProfile = profile;
     renderRecords(currentProfile.records);
 }

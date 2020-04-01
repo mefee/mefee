@@ -79,9 +79,18 @@
                     </select>
                 </div>
                 <div>
+                    <input id="existing_profile_name" type='text' placeholder='Profile Name' style="display: inline;">
+                    <button onclick='renameProfile()' style="display: inline;">Rename Selected Profile</button>
+                </div>
+                <hr/>
+                <div>
                     <input id="new_profile_name" type='text' placeholder='New Profile Name' style="display: inline;">
                     <button onclick='addProfile()' style="display: inline;">Add Profile</button>
-                </div>
+                </div>                
+                <div>
+                    <!-- TODO: Confirmation Dialog -->
+                    <!-- <button onclick='deleteProfile()'>Delete Selected Profile</button> -->
+                </div>                
             </fieldset>
         </div>
 
