@@ -161,9 +161,6 @@ function redraw() {
             "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
             "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
     }).join("\n"));
-
-    console.log("Profile", currentProfile.records);
-    console.log("Render", data);
 }
 
 function renderRecords(records) {
@@ -277,7 +274,7 @@ function loadDataV1(dataV1) {
         preferred_temperature_unit: (dataV1.preferred_temperature_unit !== null) ? dataV1.preferred_temperature_unit : 'F',
         profiles: [{
             name: 'Default',
-            sick: dataV1.sick !== null ? dataV1.sick : false,
+            sick: (dataV1.sick !== null && dataV1.sick !== undefined) ? dataV1.sick : false,
             records: []
         }]
     };
@@ -314,6 +311,7 @@ function loadData() {
             }
         } else {
             loadDataV1({
+                sick: false,
                 data: []
             });
             console.log("No data found");
