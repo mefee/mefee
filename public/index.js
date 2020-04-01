@@ -313,6 +313,9 @@ function loadData() {
                 loadDataV1(data);
             }
         } else {
+            loadDataV1({
+                data: []
+            });
             console.log("No data found");
         }
     }).catch(function (error) {
