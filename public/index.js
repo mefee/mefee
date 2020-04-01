@@ -64,37 +64,32 @@ function getLatestDate(data) {
     }).x;
 }
 
-function persistRecords(records) {
-    var i, user, superuser, record;
-    if (records) {
-        currentProfile.records = [];
-        for (i = 0; i < records.length; i += 1) {
-            record = records[i];
-            currentProfile.records.push({
-                datetime: record.x.toDate(),
-                temperature: temperatureUnit === 'F' ? record.y : celsiusToFarenheit(record.y),
-                sick: record.sick
-            });
-        }
-
-        user = firebase.auth().currentUser;
-        superuser = getSuperuser();
-
-        firebase.firestore().collection("users").doc(superuser !== null ? superuser : user.uid).set({
-            schema_version: 2,
-            email: user.email,
-            preferred_temperature_unit: temperatureUnit,
-            sync_time: moment().toDate(),
-            profiles: profiles
-        }).then(function () {
-            console.log("Document successfully written!");
-        }).catch(function (error) {
-            console.error("Error writing document: ", error);
-        });
-    }
+function renderProfiles() {
+    $('#profile_selector').html(profiles.map(function (profile) {
+        return "<option value='" + profile.name + "'>" + profile.name + "</option>"
+    }).join("\n"))
 }
 
-function dataChanged() {
+function persistData() {
+    var user, superuser;
+
+    user = firebase.auth().currentUser;
+    superuser = getSuperuser();
+
+    firebase.firestore().collection("users").doc(superuser !== null ? superuser : user.uid).set({
+        schema_version: 2,
+        email: user.email,
+        preferred_temperature_unit: temperatureUnit,
+        sync_time: moment().toDate(),
+        profiles: profiles
+    }).then(function () {
+        console.log("Document successfully written!");
+    }).catch(function (error) {
+        console.error("Error writing document: ", error);
+    });
+}
+
+function redraw() {
     var data, length, filtered_data, filtered_length, bar;
 
     data = chart.data.datasets[0].data;
@@ -104,7 +99,7 @@ function dataChanged() {
     });
 
     length = data.length;
-    filtered_data = chart.data.datasets[0].data.filter(function (record) {
+    filtered_data = data.filter(function (record) {
         return moment().diff(record.x, 'days') > 0 && !record.sick;
     });
     filtered_length = filtered_data.length;
@@ -122,6 +117,7 @@ function dataChanged() {
         chart.update();
         $('#chart').show();
     } else {
+        $('#chart').hide();
         bar = temperatureUnit === 'F' ? 100 : 37.8;
     }
 
@@ -156,35 +152,37 @@ function dataChanged() {
         }
     }
 
-    $('#data-table').html(chart.data.datasets[0].data.map(function (it, index) {
+    $('#data-table').html(currentProfile.records.map(function (record, index) {
         return "<tr><td>" +
-            moment(it.x).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
-            (Math.round(it.y * 100) / 100) + " " + temperatureUnit +
+            moment.unix(record.datetime.seconds).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
+            (Math.round(record.temperature * 100) / 100) + " " + temperatureUnit +
             "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
-            "<option value='healthy' " + (it.sick ? "" : "selected") + ">Healthy</option>" +
-            "<option value='sick' " + (it.sick ? "selected" : "") + ">Sick</option>" +
+            "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
+            "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
             "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
     }).join("\n"));
+
+    console.log("Profile", currentProfile.records);
+    console.log("Render", data);
 }
 
 function notSick() {
     currentProfile.sick = false;
-    dataChanged();
-    persistRecords(chart.data.datasets[0].data);
+    persistData();    
     $('#feeling_better').hide();
+    displayRecords(currentProfile.records);
 }
 
 function changeStatus(index) {
-    chart.data.datasets[0].data[index].sick = $('#status_' + index).val() === 'sick';
-    dataChanged();
-    persistRecords(chart.data.datasets[0].data);
+    currentProfile.records[index].sick = $('#status_' + index).val() === 'sick';
+    persistData();
+    displayRecords(currentProfile.records);
 }
 
 function deleteData(index) {
-    chart.data.datasets[0].data.splice(index, 1);
-    persistRecords(chart.data.datasets[0].data);
-    dataChanged();
-    persistRecords(chart.data.datasets[0].data);
+    currentProfile.records.splice(index, 1);
+    persistData();
+    displayRecords(currentProfile.records);
 }
 
 function login() {
@@ -202,55 +200,56 @@ function logout() {
 
 function setTemperatureUnit(unit) {
     if (temperatureUnit === 'C' && unit === 'F') {
-        chart.data.datasets[0].data.forEach(function (e) {
-            e.y = celsiusToFarenheit(e.y);
+        profiles.forEach(function (profile) {
+            profile.records.forEach(function (record) {
+                record.temperature = celsiusToFarenheit(record.temperature);
+            });
         });
         temperatureUnit = 'F';
         $("#temperature-unit").html('F');
         $("#farenheit").attr("checked", true);
         $("#celsius").attr("checked", false);
     } else if (temperatureUnit === 'F' && unit === 'C') {
-        chart.data.datasets[0].data.forEach(function (e) {
-            e.y = farenheitToCelsius(e.y);
+        profiles.forEach(function (profile) {
+            profile.records.forEach(function (record) {
+                record.temperature = farenheitToCelsius(record.temperature);
+            });
         });
         temperatureUnit = 'C';
         $("#temperature-unit").html('C');
         $("#farenheit").attr("checked", false);
         $("#celsius").attr("checked", true);
     }
-    $('#temperature').val(temperatureUnit === 'F' ? 98.6 : 37);
+
+    $('#temperature').val(temperatureUnit === 'F' ? 97.9 : 36.6);
+    displayRecords(currentProfile.records);
 }
 
-function setRecords(records) {
-    chart.data.datasets[0].data = records;
-    dataChanged();
+function displayRecords(records) {
+    var displayRecords = [];
+    records.forEach(function (record) {
+        displayRecords.push({
+            x: moment.unix(record.datetime.seconds),
+            y: record.temperature,
+            sick: record.sick
+        });
+    });
+    chart.data.datasets[0].data = displayRecords;
+    redraw();
     $('#loading').hide();
     $('#login_page').hide();
     $('#content_page').show();
 }
 
 function setCurrentProfile(profile) {
-    var i, records, record;
-
     console.log("Setting current profile", profile);
-
     currentProfile = profile;
-
-    records = [];
-    for (i = 0; i < currentProfile.records.length; i += 1) {
-        record = currentProfile.records[i];
-        records.push({
-            x: moment.unix(record.datetime.seconds),
-            y: temperatureUnit === 'F' ? record.temperature : farenheitToCelsius(record.temperature),
-            sick: record.sick
-        });
-    }
-    currentProfile.records = records;
-    setRecords(records);
+    displayRecords(currentProfile.records);
 }
 
 function loadDataV2(data) {
-    setTemperatureUnit(data.preferred_temperature_unit);
+    var record;
+    
     if (data.profiles !== null && data.profiles.length >= 1) {
         profiles = data.profiles;
         if (!profiles || profiles.length === 0) {
@@ -260,15 +259,17 @@ function loadDataV2(data) {
                 records: []
             }];
         }
-        setCurrentProfile(profiles[0]);
     } else {
         profiles = [{
             name: 'Default',
             sick: false,
             records: []
         }];
-        setCurrentProfile(profiles[0]);
     }
+
+    setTemperatureUnit(data.preferred_temperature_unit);
+    renderProfiles()
+    setCurrentProfile(profiles[0]);
 }
 
 function loadDataV1(dataV1) {
@@ -352,17 +353,44 @@ function showAboutTab() {
 
 function addNewRecord() {
     var newRecord = {
-        x: moment($('#datetime').val()),
-        y: Math.round(100 * $('#temperature').val()) / 100,
+        datetime: firebase.firestore.Timestamp.fromDate(moment($('#datetime').val()).toDate()),
+        temperature: Math.round(100 * $('#temperature').val()) / 100,
         sick: false
     };
 
-    chart.data.datasets[0].data.push(newRecord);
-    dataChanged();
-    persistRecords(chart.data.datasets[0].data);
+    currentProfile.records.push(newRecord);
+    persistData();
+    displayRecords(currentProfile.records);
 
     showResultsTab();
     $('#datetime').val(new Date().toDateInputValue());
+}
+
+function changeProfile() {
+    var selectedProfile = $('#profile_selector').val();
+    var matches = profiles.filter(function (profile) {
+        return profile.name === selectedProfile;
+    });
+    setCurrentProfile(matches[0]);
+}
+
+function addProfile() {
+    var newProfile = {
+        name: $('#new_profile_name').val(),
+        sick: false,
+        records: []
+    };
+
+    var matches = profiles.filter(function (profile) {
+        return profile.name === newProfile.name;
+    });
+    if (matches.length === 0) {
+        $('#new_profile_name').val('')
+        profiles.push(newProfile);
+        renderProfiles();
+        $('#profile_selector').val(newProfile.name);
+        setCurrentProfile(newProfile);
+    }
 }
 
 function main() {
@@ -370,7 +398,6 @@ function main() {
 
     $('input[type=radio][name=temperatureUnit]').change(function () {
         setTemperatureUnit(this.value);
-        dataChanged();
     });
 
     chart = new Chart(document.getElementById('chart').getContext('2d'), {

@@ -58,20 +58,19 @@
 
     <div id="content_page" style="display: none;">
         <div align="right">
-            <form>
-                <input type="radio" name="temperatureUnit" id="farenheit" value="F" checked>
-                <label for="farenheit">Farenheit</label>
-                <input type="radio" name="temperatureUnit" id="celsius" value="C">
-                <label for="celsius">Celsius</label>
-            </form>
+            <input type="radio" name="temperatureUnit" id="farenheit" value="F" checked>
+            <label for="farenheit">Farenheit</label>
+            <input type="radio" name="temperatureUnit" id="celsius" value="C">
+            <label for="celsius">Celsius</label>
         </div>
-        <div style="display: none;">
-            <form>
-                <label for='profile_selector'>Current Profile: </label>
-                <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
+
+        <div>
+            <label for='profile_selector'>Current Profile: </label>
+            <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
                 <option value='0'>Default</option>
-            </select>            
-        </form>
+            </select>
+            <input id="new_profile_name" type='text' placeholder='New Profile Name' style="display: inline;">
+            <button onclick='addProfile()' style="display: inline;">Add Profile</button>
         </div>
 
         <br />
@@ -100,8 +99,7 @@
             <br />
 
             <label for="temperature" style="display: block;">Temperature</label>
-            <span><input style="display: inherit;" type="number" name="temperature" id="temperature" placeholder="98.6"
-                    value="98.6">
+            <span><input style="display: inherit;" type="number" name="temperature" id="temperature" value="97.9">
                 <span id="temperature-unit">F</span>
             </span>
 
