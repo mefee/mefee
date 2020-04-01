@@ -240,6 +240,7 @@ function setTemperatureUnit(unit) {
 
 function setCurrentProfile(profile) {
     console.log("Setting current profile", profile);
+    $('#current_profile_name').html(profile.name);
     currentProfile = profile;
     renderRecords(currentProfile.records);
 }
@@ -392,6 +393,8 @@ function addProfile() {
         $('#profile_selector').val(newProfile.name);
         setCurrentProfile(newProfile);
     }
+
+    persistData();
 }
 
 function main() {

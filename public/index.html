@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
     <meta charset="utf-8">
     <meta http-equiv="Cache-Control" content="no-store" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name=”robots” content="index, follow">
     <meta name="description" content="Track your temperature to catch the symptoms of COVID19 early.">
 
@@ -58,19 +58,26 @@
 
     <div id="content_page" style="display: none;">
         <div align="right">
+            <a onclick="$('#profile_panel').show()" style="cursor: pointer; margin-right: 20px">Profile: <span
+                    id="current_profile_name">Default</span></a>
             <input type="radio" name="temperatureUnit" id="farenheit" value="F" checked>
-            <label for="farenheit">Farenheit</label>
+            <label for="farenheit" style="margin-right: 20px;">Farenheit</label>
             <input type="radio" name="temperatureUnit" id="celsius" value="C">
             <label for="celsius">Celsius</label>
         </div>
 
-        <div>
-            <label for='profile_selector'>Current Profile: </label>
-            <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
-                <option value='0'>Default</option>
-            </select>
-            <input id="new_profile_name" type='text' placeholder='New Profile Name' style="display: inline;">
-            <button onclick='addProfile()' style="display: inline;">Add Profile</button>
+        <fieldset id="profile_panel" style="display: none;">
+            <div>
+                <label for='profile_selector'>Current Profile: </label>
+                <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
+                    <option value='0'>Default</option>
+                </select>
+            </div>
+            <div>
+                <input id="new_profile_name" type='text' placeholder='New Profile Name' style="display: inline;">
+                <button onclick='addProfile()' style="display: inline;">Add Profile</button>
+            </div>
+            <a onclick="$('#profile_panel').hide()" style="cursor: pointer;">Hide Profile Panel</a>
         </div>
 
         <br />
