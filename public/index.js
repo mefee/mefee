@@ -66,8 +66,8 @@ function getLatestDate(data) {
 
 function renderProfiles() {
     $('#profile_selector').html(profiles.map(function (profile) {
-        return "<option value='" + profile.name + "'>" + profile.name + "</option>"
-    }).join("\n"))
+        return "<option value='" + profile.name + "'>" + profile.name + "</option>";
+    }).join("\n"));
 }
 
 function persistData() {
@@ -166,23 +166,39 @@ function redraw() {
     console.log("Render", data);
 }
 
+function renderRecords(records) {
+    var displayRecords = [];
+    records.forEach(function (record) {
+        displayRecords.push({
+            x: moment.unix(record.datetime.seconds),
+            y: record.temperature,
+            sick: record.sick
+        });
+    });
+    chart.data.datasets[0].data = displayRecords;
+    redraw();
+    $('#loading').hide();
+    $('#login_page').hide();
+    $('#content_page').show();
+}
+
 function notSick() {
     currentProfile.sick = false;
-    persistData();    
+    persistData();
     $('#feeling_better').hide();
-    displayRecords(currentProfile.records);
+    renderRecords(currentProfile.records);
 }
 
 function changeStatus(index) {
     currentProfile.records[index].sick = $('#status_' + index).val() === 'sick';
     persistData();
-    displayRecords(currentProfile.records);
+    renderRecords(currentProfile.records);
 }
 
 function deleteData(index) {
     currentProfile.records.splice(index, 1);
     persistData();
-    displayRecords(currentProfile.records);
+    renderRecords(currentProfile.records);
 }
 
 function login() {
@@ -222,34 +238,16 @@ function setTemperatureUnit(unit) {
     }
 
     $('#temperature').val(temperatureUnit === 'F' ? 97.9 : 36.6);
-    displayRecords(currentProfile.records);
-}
-
-function displayRecords(records) {
-    var displayRecords = [];
-    records.forEach(function (record) {
-        displayRecords.push({
-            x: moment.unix(record.datetime.seconds),
-            y: record.temperature,
-            sick: record.sick
-        });
-    });
-    chart.data.datasets[0].data = displayRecords;
-    redraw();
-    $('#loading').hide();
-    $('#login_page').hide();
-    $('#content_page').show();
+    renderRecords(currentProfile.records);
 }
 
 function setCurrentProfile(profile) {
     console.log("Setting current profile", profile);
     currentProfile = profile;
-    displayRecords(currentProfile.records);
+    renderRecords(currentProfile.records);
 }
 
 function loadDataV2(data) {
-    var record;
-    
     if (data.profiles !== null && data.profiles.length >= 1) {
         profiles = data.profiles;
         if (!profiles || profiles.length === 0) {
@@ -268,7 +266,7 @@ function loadDataV2(data) {
     }
 
     setTemperatureUnit(data.preferred_temperature_unit);
-    renderProfiles()
+    renderProfiles();
     setCurrentProfile(profiles[0]);
 }
 
@@ -316,7 +314,6 @@ function loadData() {
             }
         } else {
             console.log("No data found");
-            setRecords([]);
         }
     }).catch(function (error) {
         console.log("Error getting document:", error);
@@ -360,32 +357,35 @@ function addNewRecord() {
 
     currentProfile.records.push(newRecord);
     persistData();
-    displayRecords(currentProfile.records);
+    renderRecords(currentProfile.records);
 
     showResultsTab();
     $('#datetime').val(new Date().toDateInputValue());
 }
 
 function changeProfile() {
-    var selectedProfile = $('#profile_selector').val();
-    var matches = profiles.filter(function (profile) {
+    var selectedProfile, matches;
+    selectedProfile = $('#profile_selector').val();
+    matches = profiles.filter(function (profile) {
         return profile.name === selectedProfile;
     });
     setCurrentProfile(matches[0]);
 }
 
 function addProfile() {
-    var newProfile = {
+    var newProfile, matches;
+    newProfile = {
         name: $('#new_profile_name').val(),
         sick: false,
         records: []
     };
 
-    var matches = profiles.filter(function (profile) {
+    matches = profiles.filter(function (profile) {
         return profile.name === newProfile.name;
     });
+
     if (matches.length === 0) {
-        $('#new_profile_name').val('')
+        $('#new_profile_name').val('');
         profiles.push(newProfile);
         renderProfiles();
         $('#profile_selector').val(newProfile.name);
