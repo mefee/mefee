@@ -57,35 +57,38 @@
     </div>
 
     <div id="content_page" style="display: none;">
-        <div align="right">
-            <a onclick="$('#profile_panel').show()" style="cursor: pointer; margin-right: 20px">Profile: <span
-                    id="current_profile_name">Default</span></a>
-            <input type="radio" name="temperatureUnit" id="farenheit" value="F" checked>
-            <label for="farenheit" style="margin-right: 20px;">Farenheit</label>
-            <input type="radio" name="temperatureUnit" id="celsius" value="C">
-            <label for="celsius">Celsius</label>
+        <div class="clearfix">
+            <div style="float: left;">
+                <a onclick="$('#profile_panel').toggle()" style="cursor: pointer;">Profile: <span
+                        id="current_profile_name">Default</span></a>
+            </div>
+            <div style="float: right;">
+                <input type="radio" name="temperatureUnit" id="farenheit" value="F" checked>
+                <label for="farenheit" style="margin-right: 10px;">Farenheit</label>
+                <input type="radio" name="temperatureUnit" id="celsius" value="C">
+                <label for="celsius">Celsius</label>
+            </div>
         </div>
-
-        <fieldset id="profile_panel" style="display: none;">
-            <div>
-                <label for='profile_selector'>Current Profile: </label>
-                <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
-                    <option value='0'>Default</option>
-                </select>
-            </div>
-            <div>
-                <input id="new_profile_name" type='text' placeholder='New Profile Name' style="display: inline;">
-                <button onclick='addProfile()' style="display: inline;">Add Profile</button>
-            </div>
-            <a onclick="$('#profile_panel').hide()" style="cursor: pointer;">Hide Profile Panel</a>
+        <div id="profile_panel" style="display: none;">
+            <br />
+            <fieldset>
+                <div>
+                    <label for='profile_selector'>Current Profile: </label>
+                    <select id="profile_selector" onchange="changeProfile()" style="display: inline;">
+                        <option value='0'>Default</option>
+                    </select>
+                </div>
+                <div>
+                    <input id="new_profile_name" type='text' placeholder='New Profile Name' style="display: inline;">
+                    <button onclick='addProfile()' style="display: inline;">Add Profile</button>
+                </div>
+            </fieldset>
         </div>
 
         <br />
-
         <button id="tab_button_form" onclick="showFormTab()" class="tab selected">Input</button>
         <button id="tab_button_results" onclick="showResultsTab()" class="tab">Results</button>
         <button id="tab_button_about" onclick="showAboutTab()" class="tab">About</button>
-
         <hr class="tab-bar" />
 
         <div id="tab_form" align="center">
