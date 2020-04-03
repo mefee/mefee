@@ -42,7 +42,7 @@ function calculateBar(records) {
             temperatures = records.map(function (d) {
                 return d.y;
             });
-            result = 4 * getSD(temperatures) * Math.sqrt((records.length - 1) / chisqrdistr(records.length - 1, 0.95));
+            result = 3 * getSD(temperatures) * Math.sqrt((records.length - 1) / chisqrdistr(records.length - 1, 0.95));
             return Math.min(result + getMean(temperatures), temperatureUnit === 'F' ? 100 : 37.8);
         }
         return temperatureUnit === 'F' ? 100 : 37.8;
