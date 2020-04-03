@@ -37,19 +37,15 @@ function getSuperuser() {
 
 function calculateBar(records) {
     var temperatures, result;
-    try {
-        if (records.length > 1) {
-            temperatures = records.map(function (d) {
-                return d.y;
-            });
-            result = 3 * getSD(temperatures) * Math.sqrt((records.length - 1) / chisqrdistr(records.length - 1, 0.95));
-            return Math.min(result + getMean(temperatures), temperatureUnit === 'F' ? 100 : 37.8);
-        }
-        return temperatureUnit === 'F' ? 100 : 37.8;
-    } catch (error) {
-        console.error(error);
-        return temperatureUnit === 'F' ? 100 : 37.8;
+    if (records.length > 1) {
+        temperatures = records.map(function (d) {
+            return d.y;
+        });
+        result = 3 * getSD(temperatures) * Math.sqrt((records.length - 1) / chisqrdistr(records.length - 1, 0.95));
+
+        return Math.min(result + getMean(temperatures), temperatureUnit === 'F' ? 100 : 37.8);
     }
+    return 100;
 }
 
 function getEarliestDate(data) {
@@ -71,7 +67,7 @@ function renderProfiles() {
 }
 
 function persistData() {
-    var user, superuser;
+    var user, superuser;    
 
     user = firebase.auth().currentUser;
     superuser = getSuperuser();
@@ -93,11 +89,7 @@ function redraw() {
     var data, length, filtered_data, filtered_length, bar, index, string;
 
     data = chart.data.datasets[0].data;
-
-    data.sort(function (a, b) {
-        return a.x - b.x;
-    });
-
+   
     length = data.length;
     filtered_data = data.filter(function (record) {
         return moment().diff(record.x, 'days') > 0 && !record.sick;
@@ -117,8 +109,7 @@ function redraw() {
         chart.update();
         $('#chart').show();
     } else {
-        $('#chart').hide();
-        bar = temperatureUnit === 'F' ? 100 : 37.8;
+        bar = 100;
     }
 
     if (filtered_length >= 5 && data[length - 1].y <= bar) {
@@ -131,7 +122,7 @@ function redraw() {
             $('#result_message').html("You seem fine today, please continue recording your temperature daily.");
             data[length - 1].sick = false;
         }
-    } else if (length > 0 && data[length - 1].y >= (temperatureUnit === 'F' ? 100 : 37.8)) {
+    } else if (length > 0 && data[length - 1].y >= 100) {
         $('#feeling_better').hide();
         $('#result_message').show();
         $('#result_message').html("You are running a fever, please seek medical advice.");
@@ -152,30 +143,30 @@ function redraw() {
         }
     }
 
-    string = "";
-    for(index = currentProfile.records.length-1; index >= 0; index -= 1) {
-        var record = currentProfile.records[index];
-        string += "<tr><td>" +
-        moment.unix(record.datetime.seconds).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
-        (Math.round(record.temperature * 100) / 100) + " " + temperatureUnit +
+    data = data.sort(function (a, b) {
+        return b.x.toDate() - a.x.toDate();
+    });
+
+    $('#data-table').html(data.map(function(record, index) {
+        return "<tr><td>" +
+        record.x.format("YYYY-MM-DD  HH:mm") + "</td><td>" +
+        record.y + " " + temperatureUnit +
         "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
         "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
         "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
         "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
-    }
-    $('#data-table').html(string);
+    }).join("\n"));
 }
 
-function renderRecords(records) {
-    var displayRecords = [];
-    records.forEach(function (record) {
-        displayRecords.push({
+function renderRecords() {
+    chart.data.datasets[0].data = currentProfile.records.map(function (record) {
+        return {
             x: moment.unix(record.datetime.seconds),
-            y: record.temperature,
+            y: temperatureUnit === 'F' ? record.temperature : farenheitToCelsius(record.temperature),
             sick: record.sick
-        });
+        };
     });
-    chart.data.datasets[0].data = displayRecords;
+
     redraw();
     $('#loading').hide();
     $('#login_page').hide();
@@ -186,26 +177,26 @@ function notSick() {
     currentProfile.sick = false;
     persistData();
     $('#feeling_better').hide();
-    renderRecords(currentProfile.records);
+    renderRecords();
 }
 
 function changeStatus(index) {
     currentProfile.records[index].sick = $('#status_' + index).val() === 'sick';
     persistData();
-    renderRecords(currentProfile.records);
+    renderRecords();
 }
 
 function deleteData(index) {
     currentProfile.records.splice(index, 1);
     persistData();
-    renderRecords(currentProfile.records);
+    renderRecords();
 }
 
 function renameProfile() {
     var name, matches;
 
     name = $('#existing_profile_name').val();
-    
+
     matches = profiles.filter(function (profile) {
         return profile.name === name;
     });
@@ -235,21 +226,11 @@ function logout() {
 
 function setTemperatureUnit(unit) {
     if (temperatureUnit === 'C' && unit === 'F') {
-        profiles.forEach(function (profile) {
-            profile.records.forEach(function (record) {
-                record.temperature = celsiusToFarenheit(record.temperature);
-            });
-        });
         temperatureUnit = 'F';
         $("#temperature-unit").html('F');
         $("#farenheit").attr("checked", true);
         $("#celsius").attr("checked", false);
     } else if (temperatureUnit === 'F' && unit === 'C') {
-        profiles.forEach(function (profile) {
-            profile.records.forEach(function (record) {
-                record.temperature = farenheitToCelsius(record.temperature);
-            });
-        });
         temperatureUnit = 'C';
         $("#temperature-unit").html('C');
         $("#farenheit").attr("checked", false);
@@ -257,7 +238,7 @@ function setTemperatureUnit(unit) {
     }
 
     $('#temperature').val(temperatureUnit === 'F' ? 97.9 : 36.6);
-    renderRecords(currentProfile.records);
+    renderRecords();
 }
 
 function setCurrentProfile(profile) {
@@ -266,7 +247,7 @@ function setCurrentProfile(profile) {
     $('#current_profile_name').html(profile.name);
     $('#existing_profile_name').val(profile.name);
     currentProfile = profile;
-    renderRecords(currentProfile.records);
+    renderRecords();
 }
 
 function loadDataV2(data) {
@@ -375,15 +356,16 @@ function showAboutTab() {
 }
 
 function addNewRecord() {
+    var input = $('#temperature').val();
     var newRecord = {
         datetime: firebase.firestore.Timestamp.fromDate(moment($('#datetime').val()).toDate()),
-        temperature: Math.round(100 * $('#temperature').val()) / 100,
+        temperature: Math.round(100 * (temperatureUnit == 'F' ? Math.round(input) : celsiusToFarenheit(input))) / 100,
         sick: false
     };
 
     currentProfile.records.push(newRecord);
     persistData();
-    renderRecords(currentProfile.records);
+    renderRecords();
 
     showResultsTab();
     $('#datetime').val(new Date().toDateInputValue());
