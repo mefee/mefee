@@ -90,7 +90,7 @@ function persistData() {
 }
 
 function redraw() {
-    var data, length, filtered_data, filtered_length, bar;
+    var data, length, filtered_data, filtered_length, bar, index, string;
 
     data = chart.data.datasets[0].data;
 
@@ -152,15 +152,18 @@ function redraw() {
         }
     }
 
-    $('#data-table').html(currentProfile.records.map(function (record, index) {
-        return "<tr><td>" +
-            moment.unix(record.datetime.seconds).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
-            (Math.round(record.temperature * 100) / 100) + " " + temperatureUnit +
-            "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
-            "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
-            "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
-            "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
-    }).join("\n"));
+    string = "";
+    for(index = currentProfile.records.length-1; index >= 0; index -= 1) {
+        var record = currentProfile.records[index];
+        string += "<tr><td>" +
+        moment.unix(record.datetime.seconds).format("YYYY-MM-DD  HH:mm") + "</td><td>" +
+        (Math.round(record.temperature * 100) / 100) + " " + temperatureUnit +
+        "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
+        "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
+        "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
+        "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
+    }
+    $('#data-table').html(string);
 }
 
 function renderRecords(records) {
