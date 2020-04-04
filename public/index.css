@@ -1,3 +1,7 @@
+a {
+    cursor: pointer;
+}
+
 .github-corner:hover .octo-arm {
     animation: octocat-wave 560ms ease-in-out
 }
@@ -23,14 +27,29 @@
     }
 }
 
-.clearfix:after { 
+.login_button {
+    background: url("assets/btn_google_signin_dark_normal_web.png");
+    display: inline-block;
+    width: 191px;
+    height: 46px;
+}
+
+.login_button:hover {
+    background: url("assets/btn_google_signin_dark_focus_web.png")
+}
+
+.login_button:active {
+    background: url("assets/btn_google_signin_dark_pressed_web.png")
+}
+
+.clearfix:after {
     content: "";
     visibility: hidden;
     display: block;
     height: 0;
     clear: both;
-  }
-  
+}
+
 .tab {
     border-bottom-right-radius: 0px;
     border-bottom-left-radius: 0px;
