@@ -359,7 +359,7 @@ function addNewRecord() {
     var input = $('#temperature').val();
     var newRecord = {
         datetime: firebase.firestore.Timestamp.fromDate(moment($('#datetime').val()).toDate()),
-        temperature: Math.round(100 * (temperatureUnit == 'F' ? Math.round(input) : celsiusToFarenheit(input))) / 100,
+        temperature: temperatureUnit == 'F' ? Math.round(input * 100) / 100 : celsiusToFarenheit(input),
         sick: false
     };
 
