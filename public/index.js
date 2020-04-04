@@ -67,7 +67,7 @@ function renderProfiles() {
 }
 
 function persistData() {
-    var user, superuser;    
+    var user, superuser;
 
     user = firebase.auth().currentUser;
     superuser = getSuperuser();
@@ -86,10 +86,10 @@ function persistData() {
 }
 
 function redraw() {
-    var data, length, filtered_data, filtered_length, bar, index, string;
+    var data, length, filtered_data, filtered_length, bar;
 
     data = chart.data.datasets[0].data;
-   
+
     length = data.length;
     filtered_data = data.filter(function (record) {
         return moment().diff(record.x, 'days') > 0 && !record.sick;
@@ -143,14 +143,14 @@ function redraw() {
         }
     }
 
-    $('#data-table').html(data.map(function(record, index) {
+    $('#data-table').html(data.map(function (record, index) {
         return "<tr><td>" +
-        record.x.format("YYYY-MM-DD  HH:mm") + "</td><td>" +
-        record.y + " " + temperatureUnit +
-        "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
-        "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
-        "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
-        "</select></td><td><a style='cursor: pointer;' onclick='deleteRecord(" + index + ")'>Delete</a></td></tr>";
+            record.x.format("YYYY-MM-DD  HH:mm") + "</td><td>" +
+            record.y + " " + temperatureUnit +
+            "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
+            "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
+            "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
+            "</select></td><td><a style='cursor: pointer;' onclick='deleteRecord(" + index + ")'>Delete</a></td></tr>";
     }).join("\n"));
 }
 
@@ -167,9 +167,6 @@ function renderRecords() {
     });
 
     redraw();
-    $('#loading').hide();
-    $('#login_page').hide();
-    $('#content_page').show();
 }
 
 function notSick() {
@@ -191,23 +188,24 @@ function deleteRecord(index) {
     renderRecords();
 }
 
-function renameProfile() {
-    var name, matches;
-
-    name = $('#existing_profile_name').val();
-
-    matches = profiles.filter(function (profile) {
-        return profile.name === name;
-    });
-
-    if (matches.length === 0) {
-        currentProfile.name = name;
-        renderProfiles();
-        setCurrentProfile(currentProfile);
+function validateName() {
+    var name = $('#first_profile_name').val();
+    if (name && name.length > 0) {
+        $('#continue').attr('disabled', false);
+    } else {
+        $('#continue').attr('disabled', true);
     }
+}
 
-    persistData();
+function removeNewProfile(id) {
+    $(id).remove();
+}
 
+function addNewProfileForm() {
+    var index = $('#new_profiles').children().length;
+    $('#new_profiles').append('<div id="new_profile_input_' + index + '"><input style="display: inline; type="text" placeholder="Name">' +
+        '<button style="display: inline; vertical-align: middle; padding: 8px;" onclick="removeNewProfile(\'#new_profile_input_' + index + '\')">' +
+        '<img src="assets/minus-circle.svg" style="float: left;"></button></div>');
 }
 
 function login() {
@@ -306,6 +304,7 @@ function loadData() {
     superuser = getSuperuser();
 
     firebase.firestore().collection("users").doc(superuser !== null ? superuser : user.uid).get().then(function (doc) {
+        $('#loading').hide();
         if (doc.exists) {
             data = doc.data();
             console.log("Document data:", data);
@@ -314,11 +313,15 @@ function loadData() {
             } else {
                 loadDataV1(data);
             }
+            $('#content_page').show();
+            $('#starting_page').hide();
         } else {
             loadDataV1({
                 sick: false,
                 data: []
             });
+            $('#content_page').hide();
+            $('#starting_page').show();
             console.log("No data found");
         }
     }).catch(function (error) {
@@ -354,11 +357,44 @@ function showAboutTab() {
     $('#tab_about').show();
 }
 
+function continueToContentPage() {
+    var name, children;
+
+    name = $('#first_profile_name').val();
+    currentProfile.name = name;
+
+    children = [];
+    $('#new_profiles input').each(function (ignore, element) {
+        children.push(element.value);
+    });
+    children.filter(function (child) {
+        return child;
+    }).map(function (name) {
+        return {
+            name: name,
+            sick: false,
+            records: []
+        };
+    }).forEach(function (profile) {
+        profiles.push(profile);
+    });
+
+    renderProfiles();
+    setCurrentProfile(currentProfile);
+
+    persistData();
+
+    $('#starting_page').hide();
+    $('#content_page').show();
+}
+
 function addNewRecord() {
-    var input = $('#temperature').val();
-    var newRecord = {
+    var input, newRecord;
+
+    input = $('#temperature').val();
+    newRecord = {
         datetime: firebase.firestore.Timestamp.fromDate(moment($('#datetime').val()).toDate()),
-        temperature: Math.round((temperatureUnit == 'F' ? input : celsiusToFarenheit(input)) * 100) / 100,
+        temperature: Math.round((temperatureUnit === 'F' ? input : celsiusToFarenheit(input)) * 100) / 100,
         sick: false
     };
 
@@ -397,6 +433,24 @@ function addProfile() {
         renderProfiles();
         $('#profile_selector').val(newProfile.name);
         setCurrentProfile(newProfile);
+    }
+
+    persistData();
+}
+
+function renameProfile() {
+    var name, matches;
+
+    name = $('#existing_profile_name').val();
+
+    matches = profiles.filter(function (profile) {
+        return profile.name === name;
+    });
+
+    if (matches.length === 0) {
+        currentProfile.name = name;
+        renderProfiles();
+        setCurrentProfile(currentProfile);
     }
 
     persistData();
@@ -481,14 +535,14 @@ window.onload = function () {
 
     firebase.auth().getRedirectResult().then(function () {
         var user = firebase.auth().currentUser;
+        $('#content_page').hide();
+        $('#starting_page').hide();
         if (!user) {
             $('#loading').hide();
-            $('#content_page').hide();
             $('#login_page').show();
         } else {
             $('#loading').show();
             $('#login_page').hide();
-            $('#content_page').hide();
 
             $('#username').html(user.email);
             $('#user_info_bar').show();

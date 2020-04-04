@@ -56,6 +56,18 @@
         <a class="login_button" onclick="login()"></a>
     </div>
 
+    <div id="starting_page" style="display: none;">
+        <p>Welcome to MeFee Temp Tracker. To get started, please tell us who you are tracking a temperature for. You can
+            add multiple people if you wish, to assist your family or friends. You can always change this later if you
+            want.</p>
+        <input type=text id="first_profile_name" placeholder="Your Name" oninput="validateName()">
+        <div id="new_profiles"></div>
+        <button onclick="addNewProfileForm()"><img src="assets/plus-circle.svg"
+                style="float:left; margin-left:-10px; margin-right:10px;"> Add another person</button>
+        <br />
+        <button id="continue" onclick="continueToContentPage()" disabled>Continue</button>
+    </div>
+
     <div id="content_page" style="display: none;">
         <div class="clearfix">
             <div style="float: left;">
