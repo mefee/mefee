@@ -143,10 +143,6 @@ function redraw() {
         }
     }
 
-    data = data.sort(function (a, b) {
-        return b.x.toDate() - a.x.toDate();
-    });
-
     $('#data-table').html(data.map(function(record, index) {
         return "<tr><td>" +
         record.x.format("YYYY-MM-DD  HH:mm") + "</td><td>" +
@@ -154,11 +150,14 @@ function redraw() {
         "</td><td><select id='status_" + index + "' onchange='changeStatus(" + index + ")' style='cursor: pointer;'>" +
         "<option value='healthy' " + (record.sick ? "" : "selected") + ">Healthy</option>" +
         "<option value='sick' " + (record.sick ? "selected" : "") + ">Sick</option>" +
-        "</select></td><td><a style='cursor: pointer;' onclick='deleteData(" + index + ")'>Delete</a></td></tr>";
+        "</select></td><td><a style='cursor: pointer;' onclick='deleteRecord(" + index + ")'>Delete</a></td></tr>";
     }).join("\n"));
 }
 
 function renderRecords() {
+    currentProfile.records = currentProfile.records.sort(function (a, b) {
+        return b.datetime.seconds - a.datetime.seconds;
+    });
     chart.data.datasets[0].data = currentProfile.records.map(function (record) {
         return {
             x: moment.unix(record.datetime.seconds),
@@ -186,7 +185,7 @@ function changeStatus(index) {
     renderRecords();
 }
 
-function deleteData(index) {
+function deleteRecord(index) {
     currentProfile.records.splice(index, 1);
     persistData();
     renderRecords();
@@ -359,7 +358,7 @@ function addNewRecord() {
     var input = $('#temperature').val();
     var newRecord = {
         datetime: firebase.firestore.Timestamp.fromDate(moment($('#datetime').val()).toDate()),
-        temperature: temperatureUnit == 'F' ? Math.round(input * 100) / 100 : celsiusToFarenheit(input),
+        temperature: Math.round((temperatureUnit == 'F' ? input : celsiusToFarenheit(input)) * 100) / 100,
         sick: false
     };
 
